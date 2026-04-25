@@ -59,11 +59,11 @@ def check_password():
 # --- 5. APLIKASI UTAMA ---
 if check_password():
     st.title("☁️ Sistem Manajemen Bisnis Akun Game (Pro Cloud)")
-    st.caption("Akses Aman • Sinkronisasi Sydney Server • Data Pembeli & Penjual Lengkap")
+    st.caption("Akses Aman • Data Pembelian & Penjualan Lengkap")
 
     # Ambil Data
     try:
-        response = supabase.table("pendataan_akun").select("*").order('id').execute()
+        response = supabase.table("pendataan_akun").select("*").order('id', desc=True).execute()
         df = pd.DataFrame(response.data) if response.data else pd.DataFrame()
     except Exception as e:
         st.error(f"Gagal memuat data: {e}")
@@ -87,7 +87,7 @@ if check_password():
         c5.metric("💰 Total Profit", f"Rp {profit:,.0f}")
 
     st.markdown("---")
-    t1, t2 = st.tabs(["📝 Input Transaksi", "📊 Database"])
+    t1, t2 = st.tabs(["📝 Input Transaksi", "📊 Database & Media"])
 
     with t1:
         with st.form("main_form", clear_on_submit=True):
@@ -101,7 +101,7 @@ if check_password():
                 wa_seller = st.text_input("WhatsApp Penjual")
                 fb_seller = st.text_input("FB Penjual")
                 h_beli = st.number_input("Harga Beli (Rp)*", min_value=0)
-                ss = st.file_uploader("Screenshot", type=['png', 'jpg', 'jpeg'])
+                ss = st.file_uploader("Upload Bukti Screenshot", type=['png', 'jpg', 'jpeg'])
             with col_b:
                 st.subheader("💰 Data Penjualan (Ke Customer)")
                 t_jual = st.date_input("Tanggal Jual", value=None)
@@ -110,7 +110,7 @@ if check_password():
                 fb_buyer = st.text_input("FB Pembeli")
                 h_jual = st.number_input("Harga Jual (Rp)", min_value=0)
 
-            if st.form_submit_button("💾 Simpan ke Cloud"):
+            if st.form_submit_button("💾 Simpan Data ke Cloud"):
                 url = "-"
                 if ss:
                     try:
@@ -127,38 +127,58 @@ if check_password():
                     "harga_jual": float(h_jual), "screenshot": url
                 }
                 supabase.table("pendataan_akun").insert(payload).execute()
-                st.success("Berhasil!")
+                st.success("Berhasil Disimpan!")
                 st.rerun()
 
     with t2:
+        st.subheader("📊 Tabel Seluruh Transaksi")
         st.dataframe(df, use_container_width=True)
+        
         st.markdown("---")
-        if not df.empty:
-            st.subheader("📝 Edit Data")
-            eid = st.selectbox("Pilih ID:", df['id'].tolist())
-            row = df[df['id'] == eid].iloc[0]
-            with st.expander("Buka Form Edit"):
-                with st.form(f"edit_{eid}"):
-                    e1, e2 = st.columns(2)
-                    with e1:
+        
+        # --- BAGIAN LIHAT SCREENSHOT & EDIT/HAPUS ---
+        col_view, col_manage = st.columns([1, 1])
+        
+        with col_view:
+            st.subheader("🖼️ Viewer Screenshot")
+            if not df.empty:
+                # Filter hanya data yang punya link screenshot valid
+                df_with_ss = df[df['screenshot'].str.contains("http", na=False)]
+                if not df_with_ss.empty:
+                    pilih_id_ss = st.selectbox("Pilih ID Akun untuk lihat gambar:", df_with_ss['id'].tolist())
+                    img_url = df_with_ss[df_with_ss['id'] == pilih_id_ss]['screenshot'].values[0]
+                    st.image(img_url, caption=f"Bukti Transaksi ID: {pilih_id_ss}", use_container_width=True)
+                else:
+                    st.info("Belum ada bukti screenshot yang diupload.")
+        
+        with col_manage:
+            st.subheader("⚙️ Kelola Data")
+            if not df.empty:
+                tab_edit, tab_hapus = st.tabs(["📝 Edit Data", "🗑️ Hapus"])
+                
+                with tab_edit:
+                    eid = st.selectbox("Pilih ID untuk diedit:", df['id'].tolist())
+                    row = df[df['id'] == eid].iloc[0]
+                    with st.form(f"edit_form_{eid}"):
                         eg = st.text_input("Game", value=row['nama_game'])
                         ee = st.text_input("Email", value=row['email_akun'])
-                        es = st.text_input("Seller", value=row.get('nama_penjual',''))
-                        ews = st.text_input("WA Seller", value=row.get('wa_penjual',''))
-                        efs = st.text_input("FB Seller", value=row.get('fb_penjual',''))
-                    with e2:
                         eb = st.text_input("Buyer", value=row['nama_pembeli'])
                         ewb = st.text_input("WA Buyer", value=row['no_wa'])
-                        efb = st.text_input("FB Buyer", value=row['akun_fb'])
                         ehj = st.number_input("Harga Jual", value=float(row['harga_jual']))
-                    if st.form_submit_button("Update"):
-                        upd = {
-                            "nama_game": eg, "email_akun": ee, "nama_penjual": es,
-                            "wa_penjual": ews, "fb_penjual": efs, "nama_pembeli": eb,
-                            "no_wa": ewb, "akun_fb": efb, "harga_jual": ehj
-                        }
-                        supabase.table("pendataan_akun").update(upd).eq("id", eid).execute()
-                        st.success("Update Sukses!")
+                        if st.form_submit_button("Update"):
+                            upd = {"nama_game": eg, "email_akun": ee, "nama_pembeli": eb, "no_wa": ewb, "harga_jual": ehj}
+                            supabase.table("pendataan_akun").update(upd).eq("id", eid).execute()
+                            st.success("Update Berhasil!")
+                            st.rerun()
+                
+                with tab_hapus:
+                    did = st.number_input("Masukkan ID yang akan dihapus:", min_value=0, step=1)
+                    if st.button("Hapus Permanen", type="primary"):
+                        supabase.table("pendataan_akun").delete().eq("id", did).execute()
+                        st.success(f"ID {did} Terhapus!")
                         st.rerun()
     
-    st.sidebar.button("🚪 Logout", on_click=lambda: st.session_state.clear())
+    # Tombol Logout di Sidebar
+    if st.sidebar.button("🚪 Logout"):
+        st.session_state.clear()
+        st.rerun()
