@@ -36,23 +36,25 @@ SUPABASE_URL = "https://elnedvfsuxfdizrpciwb.supabase.co"
 SUPABASE_KEY = "sb_publishable_Z3h1zSRnCH5N2LStz_i_aQ__FsnB0Rh"
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# --- 4. SISTEM KEAMANAN ---
+# --- 4. SISTEM KEAMANAN (PASSWORD: 131313) ---
 def check_password():
     def password_entered():
-        if st.session_state["password"] == "admin123":
+        if st.session_state["password"] == "131313":
             st.session_state["password_correct"] = True
             del st.session_state["password"] 
         else:
             st.session_state["password_correct"] = False
 
     if "password_correct" not in st.session_state:
+        # JUDUL LOGIN DIUBAH MENJADI COPYRIGHT FANI
         st.title("🔒 Copyright Fani")
+        st.info("Silakan masukkan password untuk mengakses sistem manajemen.")
         st.text_input("Password:", type="password", on_change=password_entered, key="password")
         return False
     elif not st.session_state["password_correct"]:
         st.title("🔒 Copyright Fani")
         st.text_input("Password:", type="password", on_change=password_entered, key="password")
-        st.error("⚠️ Password salah.")
+        st.error("⚠️ Password salah. Silakan coba lagi.")
         return False
     return True
 
@@ -136,13 +138,11 @@ if check_password():
         
         st.markdown("---")
         
-        # --- BAGIAN LIHAT SCREENSHOT & EDIT/HAPUS ---
         col_view, col_manage = st.columns([1, 1])
         
         with col_view:
             st.subheader("🖼️ Viewer Screenshot")
             if not df.empty:
-                # Filter hanya data yang punya link screenshot valid
                 df_with_ss = df[df['screenshot'].str.contains("http", na=False)]
                 if not df_with_ss.empty:
                     pilih_id_ss = st.selectbox("Pilih ID Akun untuk lihat gambar:", df_with_ss['id'].tolist())
@@ -178,7 +178,6 @@ if check_password():
                         st.success(f"ID {did} Terhapus!")
                         st.rerun()
     
-    # Tombol Logout di Sidebar
     if st.sidebar.button("🚪 Logout"):
         st.session_state.clear()
         st.rerun()
