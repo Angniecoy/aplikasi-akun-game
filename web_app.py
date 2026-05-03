@@ -5,7 +5,7 @@ import pandas as pd
 # --- 1. PENGATURAN HALAMAN UTAMA ---
 st.set_page_config(page_title="Sistem Akun Game Pro", page_icon="🎮", layout="wide")
 
-# --- 2. DESAIN UI KUSTOM (BACKGROUND & GLASSMORPHISM) ---
+# --- 2. DESAIN UI KUSTOM ---
 background_image_url = "https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?q=80&w=2071&auto=format&fit=crop"
 
 st.markdown(
@@ -36,7 +36,7 @@ SUPABASE_URL = "https://elnedvfsuxfdizrpciwb.supabase.co"
 SUPABASE_KEY = "sb_publishable_Z3h1zSRnCH5N2LStz_i_aQ__FsnB0Rh"
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# --- 4. SISTEM KEAMANAN (PASSWORD: 131313) ---
+# --- 4. SISTEM KEAMANAN ---
 def check_password():
     def password_entered():
         if st.session_state["password"] == "131313":
@@ -46,7 +46,6 @@ def check_password():
             st.session_state["password_correct"] = False
 
     if "password_correct" not in st.session_state:
-        # JUDUL LOGIN DIUBAH MENJADI COPYRIGHT FANI
         st.title("🔒 Copyright Fani")
         st.info("Silakan masukkan password untuk mengakses sistem manajemen.")
         st.text_input("Password:", type="password", on_change=password_entered, key="password")
@@ -63,7 +62,6 @@ if check_password():
     st.title("☁️ Sistem Manajemen Bisnis Akun Game (Pro Cloud)")
     st.caption("Akses Aman • Data Pembelian & Penjualan Lengkap")
 
-    # Ambil Data
     try:
         response = supabase.table("pendataan_akun").select("*").order('id', desc=True).execute()
         df = pd.DataFrame(response.data) if response.data else pd.DataFrame()
@@ -71,7 +69,6 @@ if check_password():
         st.error(f"Gagal memuat data: {e}")
         st.stop()
 
-    # DASHBOARD
     if not df.empty:
         df['harga_beli'] = pd.to_numeric(df['harga_beli'], errors='coerce').fillna(0)
         df['harga_jual'] = pd.to_numeric(df['harga_jual'], errors='coerce').fillna(0)
@@ -135,7 +132,6 @@ if check_password():
     with t2:
         st.subheader("📊 Tabel Seluruh Transaksi")
         st.dataframe(df, use_container_width=True)
-        
         st.markdown("---")
         
         col_view, col_manage = st.columns([1, 1])
@@ -154,21 +150,42 @@ if check_password():
         with col_manage:
             st.subheader("⚙️ Kelola Data")
             if not df.empty:
-                tab_edit, tab_hapus = st.tabs(["📝 Edit Data", "🗑️ Hapus"])
+                tab_edit, tab_hapus = st.tabs(["📝 Edit Data Lanjutan", "🗑️ Hapus"])
                 
                 with tab_edit:
                     eid = st.selectbox("Pilih ID untuk diedit:", df['id'].tolist())
                     row = df[df['id'] == eid].iloc[0]
+                    
                     with st.form(f"edit_form_{eid}"):
-                        eg = st.text_input("Game", value=row['nama_game'])
-                        ee = st.text_input("Email", value=row['email_akun'])
-                        eb = st.text_input("Buyer", value=row['nama_pembeli'])
-                        ewb = st.text_input("WA Buyer", value=row['no_wa'])
-                        ehj = st.number_input("Harga Jual", value=float(row['harga_jual']))
-                        if st.form_submit_button("Update"):
-                            upd = {"nama_game": eg, "email_akun": ee, "nama_pembeli": eb, "no_wa": ewb, "harga_jual": ehj}
+                        st.info("Silakan perbarui rincian data di bawah ini:")
+                        e_col1, e_col2 = st.columns(2)
+                        
+                        with e_col1:
+                            st.caption("🛍️ PEMBELIAN (MODAL)")
+                            etb = st.text_input("Tanggal Beli (YYYY-MM-DD)", value=str(row['tanggal_beli']))
+                            eg = st.text_input("Game", value=row['nama_game'])
+                            ee = st.text_input("Email", value=row['email_akun'])
+                            es = st.text_input("Seller", value=row.get('nama_penjual',''))
+                            ews = st.text_input("WA Seller", value=row.get('wa_penjual',''))
+                            efs = st.text_input("FB Seller", value=row.get('fb_penjual',''))
+                            ehb = st.number_input("Harga Beli", value=float(row['harga_beli']))
+                            
+                        with e_col2:
+                            st.caption("💰 PENJUALAN (PROFIT)")
+                            etj = st.text_input("Tanggal Jual (YYYY-MM-DD)", value=str(row['tanggal_jual']))
+                            eb = st.text_input("Buyer", value=row['nama_pembeli'])
+                            ewb = st.text_input("WA Buyer", value=row['no_wa'])
+                            efb = st.text_input("FB Buyer", value=row.get('akun_fb',''))
+                            ehj = st.number_input("Harga Jual", value=float(row['harga_jual']))
+                            
+                        if st.form_submit_button("💾 Update Seluruh Data"):
+                            upd = {
+                                "tanggal_beli": etb, "nama_game": eg, "email_akun": ee, 
+                                "nama_penjual": es, "wa_penjual": ews, "fb_penjual": efs, "harga_beli": ehb,
+                                "tanggal_jual": etj, "nama_pembeli": eb, "no_wa": ewb, "akun_fb": efb, "harga_jual": ehj
+                            }
                             supabase.table("pendataan_akun").update(upd).eq("id", eid).execute()
-                            st.success("Update Berhasil!")
+                            st.success("Rincian data berhasil diupdate!")
                             st.rerun()
                 
                 with tab_hapus:
