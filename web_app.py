@@ -65,7 +65,6 @@ if check_password():
 
     try:
         response = supabase.table("pendataan_akun").select("*").order('id', desc=True).execute()
-        # Update kolom default jika tabel kosong
         df = pd.DataFrame(response.data) if response.data else pd.DataFrame(columns=["id", "tanggal_beli", "nama_game", "email_akun", "password_akun", "nama_penjual", "wa_penjual", "fb_penjual", "harga_beli", "tanggal_jual", "nama_pembeli", "no_wa", "akun_fb", "harga_jual", "screenshot"])
     except Exception as e:
         st.error(f"Gagal memuat data: {e}")
@@ -97,14 +96,20 @@ if check_password():
                 st.subheader("🛒 Data Pembelian (Dari Seller)")
                 t_beli = st.date_input("Tanggal Beli")
                 game = st.text_input("Nama Game*")
-                email = st.text_input("Email Akun*")
-                # ---> KOLOM PASSWORD BARU
-                pass_akun = st.text_input("Password Akun*") 
+                
+                # ---> DIBUAT BERSEBELAHAN: EMAIL & PASSWORD <---
+                col_em, col_pw = st.columns(2)
+                with col_em:
+                    email = st.text_input("Email Akun*")
+                with col_pw:
+                    pass_akun = st.text_input("Password Akun*")
+                    
                 seller = st.text_input("Nama Penjual")
                 wa_seller = st.text_input("WhatsApp Penjual")
                 fb_seller = st.text_input("FB Penjual")
                 h_beli = st.number_input("Harga Beli (Rp)*", min_value=0)
                 ss = st.file_uploader("Upload Bukti Screenshot", type=['png', 'jpg', 'jpeg'])
+                
             with col_b:
                 st.subheader("💰 Data Penjualan (Ke Customer)")
                 t_jual = st.date_input("Tanggal Jual", value=None)
@@ -124,7 +129,7 @@ if check_password():
                 
                 payload = {
                     "tanggal_beli": str(t_beli), "nama_game": game, "email_akun": email,
-                    "password_akun": pass_akun,  # ---> SIMPAN PASSWORD KE SUPABASE
+                    "password_akun": pass_akun, 
                     "nama_penjual": seller, "wa_penjual": wa_seller, "fb_penjual": fb_seller,
                     "harga_beli": float(h_beli), "tanggal_jual": str(t_jual) if t_jual else "-",
                     "nama_pembeli": buyer, "no_wa": wa_buyer, "akun_fb": fb_buyer,
@@ -174,10 +179,13 @@ if check_password():
                             etb = st.date_input("Tanggal Beli", value=val_tb)
                             
                             eg = st.text_input("Game", value=row['nama_game'])
-                            ee = st.text_input("Email", value=row['email_akun'])
                             
-                            # ---> EDIT PASSWORD AKUN
-                            epa = st.text_input("Password Akun", value=row.get('password_akun','-')) 
+                            # ---> DIBUAT BERSEBELAHAN: EMAIL & PASSWORD (EDIT) <---
+                            e_col_em, e_col_pw = st.columns(2)
+                            with e_col_em:
+                                ee = st.text_input("Email", value=row['email_akun'])
+                            with e_col_pw:
+                                epa = st.text_input("Password Akun", value=row.get('password_akun','-')) 
                             
                             es = st.text_input("Seller", value=row.get('nama_penjual',''))
                             ews = st.text_input("WA Seller", value=row.get('wa_penjual',''))
@@ -201,7 +209,7 @@ if check_password():
                             upd = {
                                 "tanggal_beli": str(etb) if etb else "-", 
                                 "nama_game": eg, "email_akun": ee, 
-                                "password_akun": epa, # ---> UPDATE PASSWORD KE SUPABASE
+                                "password_akun": epa,
                                 "nama_penjual": es, "wa_penjual": ews, "fb_penjual": efs, "harga_beli": ehb,
                                 "tanggal_jual": str(etj) if etj else "-", 
                                 "nama_pembeli": eb, "no_wa": ewb, "akun_fb": efb, "harga_jual": ehj
