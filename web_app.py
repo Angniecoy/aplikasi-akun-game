@@ -65,7 +65,21 @@ if check_password():
 
     try:
         response = supabase.table("pendataan_akun").select("*").order('id', desc=True).execute()
-        df = pd.DataFrame(response.data) if response.data else pd.DataFrame(columns=["id", "tanggal_beli", "nama_game", "email_akun", "password_akun", "nama_penjual", "wa_penjual", "fb_penjual", "harga_beli", "tanggal_jual", "nama_pembeli", "no_wa", "akun_fb", "harga_jual", "screenshot"])
+        if response.data:
+            df = pd.DataFrame(response.data)
+            
+            # ---> KODE BARU: MENGATUR URUTAN KOLOM TABEL SECARA PAKSA <---
+            urutan_kolom = [
+                "id", "tanggal_beli", "nama_game", "email_akun", "password_akun", 
+                "nama_penjual", "wa_penjual", "fb_penjual", "harga_beli", 
+                "tanggal_jual", "nama_pembeli", "no_wa", "akun_fb", "harga_jual", "screenshot"
+            ]
+            # Terapkan urutan hanya untuk kolom yang memang ada di database
+            kolom_tersedia = [kol untuk kol in urutan_kolom if kol in df.columns]
+            df = df[kolom_tersedia]
+            
+        else:
+            df = pd.DataFrame(columns=["id", "tanggal_beli", "nama_game", "email_akun", "password_akun", "nama_penjual", "wa_penjual", "fb_penjual", "harga_beli", "tanggal_jual", "nama_pembeli", "no_wa", "akun_fb", "harga_jual", "screenshot"])
     except Exception as e:
         st.error(f"Gagal memuat data: {e}")
         st.stop()
@@ -97,7 +111,6 @@ if check_password():
                 t_beli = st.date_input("Tanggal Beli")
                 game = st.text_input("Nama Game*")
                 
-                # ---> DIBUAT BERSEBELAHAN: EMAIL & PASSWORD <---
                 col_em, col_pw = st.columns(2)
                 with col_em:
                     email = st.text_input("Email Akun*")
@@ -141,6 +154,7 @@ if check_password():
 
     with t2:
         st.subheader("📊 Tabel Seluruh Transaksi")
+        # Tabel ini sekarang akan mengikuti urutan kolom yang sudah kita atur di atas
         st.dataframe(df, use_container_width=True)
         st.markdown("---")
         
@@ -180,7 +194,6 @@ if check_password():
                             
                             eg = st.text_input("Game", value=row['nama_game'])
                             
-                            # ---> DIBUAT BERSEBELAHAN: EMAIL & PASSWORD (EDIT) <---
                             e_col_em, e_col_pw = st.columns(2)
                             with e_col_em:
                                 ee = st.text_input("Email", value=row['email_akun'])
