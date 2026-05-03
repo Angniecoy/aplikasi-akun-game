@@ -1,6 +1,7 @@
 import streamlit as st
 from supabase import create_client, Client
 import pandas as pd
+from datetime import datetime  # Tambahan modul untuk membaca format kalender
 
 # --- 1. PENGATURAN HALAMAN UTAMA ---
 st.set_page_config(page_title="Sistem Akun Game Pro", page_icon="🎮", layout="wide")
@@ -162,7 +163,14 @@ if check_password():
                         
                         with e_col1:
                             st.caption("🛍️ PEMBELIAN (MODAL)")
-                            etb = st.text_input("Tanggal Beli (YYYY-MM-DD)", value=str(row['tanggal_beli']))
+                            
+                            # Konversi teks tanggal beli ke kalender
+                            try:
+                                val_tb = datetime.strptime(str(row['tanggal_beli']), "%Y-%m-%d").date()
+                            except:
+                                val_tb = datetime.today().date()
+                            etb = st.date_input("Tanggal Beli", value=val_tb)
+                            
                             eg = st.text_input("Game", value=row['nama_game'])
                             ee = st.text_input("Email", value=row['email_akun'])
                             es = st.text_input("Seller", value=row.get('nama_penjual',''))
@@ -172,7 +180,14 @@ if check_password():
                             
                         with e_col2:
                             st.caption("💰 PENJUALAN (PROFIT)")
-                            etj = st.text_input("Tanggal Jual (YYYY-MM-DD)", value=str(row['tanggal_jual']))
+                            
+                            # Konversi teks tanggal jual ke kalender (bisa kosong jika belum laku)
+                            try:
+                                val_tj = datetime.strptime(str(row['tanggal_jual']), "%Y-%m-%d").date()
+                            except:
+                                val_tj = None
+                            etj = st.date_input("Tanggal Jual", value=val_tj)
+                            
                             eb = st.text_input("Buyer", value=row['nama_pembeli'])
                             ewb = st.text_input("WA Buyer", value=row['no_wa'])
                             efb = st.text_input("FB Buyer", value=row.get('akun_fb',''))
@@ -180,9 +195,11 @@ if check_password():
                             
                         if st.form_submit_button("💾 Update Seluruh Data"):
                             upd = {
-                                "tanggal_beli": etb, "nama_game": eg, "email_akun": ee, 
+                                "tanggal_beli": str(etb) if etb else "-", 
+                                "nama_game": eg, "email_akun": ee, 
                                 "nama_penjual": es, "wa_penjual": ews, "fb_penjual": efs, "harga_beli": ehb,
-                                "tanggal_jual": etj, "nama_pembeli": eb, "no_wa": ewb, "akun_fb": efb, "harga_jual": ehj
+                                "tanggal_jual": str(etj) if etj else "-", 
+                                "nama_pembeli": eb, "no_wa": ewb, "akun_fb": efb, "harga_jual": ehj
                             }
                             supabase.table("pendataan_akun").update(upd).eq("id", eid).execute()
                             st.success("Rincian data berhasil diupdate!")
