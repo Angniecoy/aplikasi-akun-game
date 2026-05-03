@@ -6,7 +6,7 @@ from datetime import datetime
 # --- 1. PENGATURAN HALAMAN UTAMA ---
 st.set_page_config(page_title="Sistem Akun Game Pro", page_icon="🎮", layout="wide")
 
-# --- 2. DESAIN UI KUSTOM (BACKGROUND & DASHBOARD MODERN) ---
+# --- 2. DESAIN UI KUSTOM ---
 background_image_url = "https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?q=80&w=2071&auto=format&fit=crop"
 
 st.markdown(
@@ -20,7 +20,6 @@ st.markdown(
     }}
     .stApp > header {{ background-color: transparent; }}
     
-    /* Efek Glassmorphism untuk area utama */
     .block-container {{
         background-color: rgba(14, 17, 23, 0.85); 
         padding: 2rem;
@@ -30,7 +29,7 @@ st.markdown(
         margin-top: 2rem;
     }}
 
-    /* --- KODE BARU: EFEK KARTU MODERN UNTUK DASHBOARD METRIK --- */
+    /* EFEK KARTU MODERN DASHBOARD */
     [data-testid="stMetric"] {{
         background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
         border: 1px solid rgba(255, 255, 255, 0.1);
@@ -93,32 +92,55 @@ if check_password():
             ]
             kolom_tersedia = [kol for kol in urutan_kolom if kol in df.columns]
             df = df[kolom_tersedia]
-            
         else:
             df = pd.DataFrame(columns=["id", "tanggal_beli", "tanggal_jual", "nama_game", "nama_penjual", "email_akun", "password_akun", "wa_penjual", "fb_penjual", "harga_beli", "nama_pembeli", "no_wa", "akun_fb", "harga_jual", "screenshot"])
     except Exception as e:
         st.error(f"Gagal memuat data: {e}")
         st.stop()
 
-    # --- DASHBOARD METRIK MODERN ---
+    # --- DASHBOARD METRIK & GRAFIK MODERN ---
     st.markdown("### 📊 Ringkasan Keuangan & Stok")
     if not df.empty:
         df['harga_beli'] = pd.to_numeric(df['harga_beli'], errors='coerce').fillna(0)
         df['harga_jual'] = pd.to_numeric(df['harga_jual'], errors='coerce').fillna(0)
+        df['profit_per_akun'] = df['harga_jual'] - df['harga_beli'] # Hitung profit per baris
+
         stok = len(df[df['harga_jual'] == 0])
         terjual = len(df[df['harga_jual'] > 0])
         modal = df['harga_beli'].sum()
         nilai_stok = df[df['harga_jual'] == 0]['harga_beli'].sum()
-        profit = (df[df['harga_jual'] > 0]['harga_jual'] - df[df['harga_jual'] > 0]['harga_beli']).sum()
+        total_profit = df[df['harga_jual'] > 0]['profit_per_akun'].sum()
 
-        c1, c2, c3, c4, c5 = st.columns(5)
+        # Hitung Profit Hari Ini
+        tanggal_hari_ini = datetime.today().strftime('%Y-%m-%d')
+        df_terjual = df[(df['harga_jual'] > 0) & (df['tanggal_jual'] != "-") & (df['tanggal_jual'].notna())].copy()
+        profit_hari_ini = df_terjual[df_terjual['tanggal_jual'] == tanggal_hari_ini]['profit_per_akun'].sum()
+
+        # Layout Kartu 2 Baris (agar lebih elegan)
+        c1, c2, c3 = st.columns(3)
         c1.metric("📦 In Stock", f"{stok} Akun")
-        c2.metric("✅ Terjual", f"{terjual} Akun")
+        c2.metric("✅ Total Terjual", f"{terjual} Akun")
         c3.metric("💳 Total Modal", f"Rp {modal:,.0f}")
-        c4.metric("💎 Nilai Stok", f"Rp {nilai_stok:,.0f}")
-        c5.metric("💰 Total Profit", f"Rp {profit:,.0f}")
+        
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        c4, c5, c6 = st.columns(3)
+        c4.metric("💎 Nilai Stok Belum Terjual", f"Rp {nilai_stok:,.0f}")
+        c5.metric("💰 Total Profit Keseluruhan", f"Rp {total_profit:,.0f}")
+        c6.metric("🚀 Profit Hari Ini", f"Rp {profit_hari_ini:,.0f}", delta="Pemasukan Baru")
 
-    st.markdown("<br>", unsafe_allow_html=True) # Spasi tambahan agar lebih rapi
+        # --- GRAFIK PROFIT HARIAN ---
+        st.markdown("---")
+        st.markdown("### 📈 Grafik Profit Harian")
+        if not df_terjual.empty:
+            # Kelompokkan data berdasarkan tanggal_jual dan jumlahkan profitnya
+            profit_harian = df_terjual.groupby('tanggal_jual')['profit_per_akun'].sum()
+            # Tampilkan menggunakan Bar Chart (Grafik Batang)
+            st.bar_chart(profit_harian, use_container_width=True)
+        else:
+            st.info("Belum ada data penjualan untuk ditampilkan di grafik.")
+
+    st.markdown("<br>", unsafe_allow_html=True)
     st.markdown("---")
     
     # --- MENU TAB ---
