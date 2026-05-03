@@ -68,18 +68,29 @@ if check_password():
         if response.data:
             df = pd.DataFrame(response.data)
             
-            # --- MENGATUR URUTAN KOLOM TABEL (DI SINI YANG DIPERBAIKI) ---
+            # --- URUTAN KOLOM TABEL SESUAI PERMINTAAN BARU ---
             urutan_kolom = [
-                "id", "tanggal_beli", "nama_game", "email_akun", "password_akun", 
-                "nama_penjual", "wa_penjual", "fb_penjual", "harga_beli", 
-                "tanggal_jual", "nama_pembeli", "no_wa", "akun_fb", "harga_jual", "screenshot"
+                "id", 
+                "tanggal_beli", 
+                "tanggal_jual", 
+                "nama_game", 
+                "nama_penjual", 
+                "email_akun", 
+                "password_akun", 
+                "wa_penjual", 
+                "fb_penjual", 
+                "harga_beli", 
+                "nama_pembeli", 
+                "no_wa", 
+                "akun_fb", 
+                "harga_jual", 
+                "screenshot"
             ]
-            # Menggunakan 'for' bukan 'untuk'
             kolom_tersedia = [kol for kol in urutan_kolom if kol in df.columns]
             df = df[kolom_tersedia]
             
         else:
-            df = pd.DataFrame(columns=["id", "tanggal_beli", "nama_game", "email_akun", "password_akun", "nama_penjual", "wa_penjual", "fb_penjual", "harga_beli", "tanggal_jual", "nama_pembeli", "no_wa", "akun_fb", "harga_jual", "screenshot"])
+            df = pd.DataFrame(columns=["id", "tanggal_beli", "tanggal_jual", "nama_game", "nama_penjual", "email_akun", "password_akun", "wa_penjual", "fb_penjual", "harga_beli", "nama_pembeli", "no_wa", "akun_fb", "harga_jual", "screenshot"])
     except Exception as e:
         st.error(f"Gagal memuat data: {e}")
         st.stop()
