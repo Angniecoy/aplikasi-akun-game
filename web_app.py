@@ -6,7 +6,7 @@ from datetime import datetime
 # --- 1. PENGATURAN HALAMAN UTAMA ---
 st.set_page_config(page_title="Sistem Akun Game Pro", page_icon="🎮", layout="wide")
 
-# --- 2. DESAIN UI KUSTOM ---
+# --- 2. DESAIN UI KUSTOM (BACKGROUND & DASHBOARD MODERN) ---
 background_image_url = "https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?q=80&w=2071&auto=format&fit=crop"
 
 st.markdown(
@@ -19,6 +19,8 @@ st.markdown(
         background-attachment: fixed;
     }}
     .stApp > header {{ background-color: transparent; }}
+    
+    /* Efek Glassmorphism untuk area utama */
     .block-container {{
         background-color: rgba(14, 17, 23, 0.85); 
         padding: 2rem;
@@ -26,6 +28,22 @@ st.markdown(
         box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
         backdrop-filter: blur(5px);
         margin-top: 2rem;
+    }}
+
+    /* --- KODE BARU: EFEK KARTU MODERN UNTUK DASHBOARD METRIK --- */
+    [data-testid="stMetric"] {{
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 15px 20px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
+    }}
+    [data-testid="stMetric"]:hover {{
+        transform: translateY(-5px);
+        border-color: rgba(255, 255, 255, 0.4);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
     }}
     </style>
     """,
@@ -68,23 +86,10 @@ if check_password():
         if response.data:
             df = pd.DataFrame(response.data)
             
-            # --- URUTAN KOLOM TABEL SESUAI PERMINTAAN BARU ---
             urutan_kolom = [
-                "id", 
-                "tanggal_beli", 
-                "tanggal_jual", 
-                "nama_game", 
-                "nama_penjual", 
-                "email_akun", 
-                "password_akun", 
-                "wa_penjual", 
-                "fb_penjual", 
-                "harga_beli", 
-                "nama_pembeli", 
-                "no_wa", 
-                "akun_fb", 
-                "harga_jual", 
-                "screenshot"
+                "id", "tanggal_beli", "tanggal_jual", "nama_game", "nama_penjual", 
+                "email_akun", "password_akun", "wa_penjual", "fb_penjual", 
+                "harga_beli", "nama_pembeli", "no_wa", "akun_fb", "harga_jual", "screenshot"
             ]
             kolom_tersedia = [kol for kol in urutan_kolom if kol in df.columns]
             df = df[kolom_tersedia]
@@ -95,6 +100,8 @@ if check_password():
         st.error(f"Gagal memuat data: {e}")
         st.stop()
 
+    # --- DASHBOARD METRIK MODERN ---
+    st.markdown("### 📊 Ringkasan Keuangan & Stok")
     if not df.empty:
         df['harga_beli'] = pd.to_numeric(df['harga_beli'], errors='coerce').fillna(0)
         df['harga_jual'] = pd.to_numeric(df['harga_jual'], errors='coerce').fillna(0)
@@ -111,7 +118,10 @@ if check_password():
         c4.metric("💎 Nilai Stok", f"Rp {nilai_stok:,.0f}")
         c5.metric("💰 Total Profit", f"Rp {profit:,.0f}")
 
+    st.markdown("<br>", unsafe_allow_html=True) # Spasi tambahan agar lebih rapi
     st.markdown("---")
+    
+    # --- MENU TAB ---
     t1, t2 = st.tabs(["📝 Input Transaksi", "📊 Database & Media"])
 
     with t1:
