@@ -68,14 +68,14 @@ if check_password():
         if response.data:
             df = pd.DataFrame(response.data)
             
-            # ---> KODE BARU: MENGATUR URUTAN KOLOM TABEL SECARA PAKSA <---
+            # --- MENGATUR URUTAN KOLOM TABEL (DI SINI YANG DIPERBAIKI) ---
             urutan_kolom = [
                 "id", "tanggal_beli", "nama_game", "email_akun", "password_akun", 
                 "nama_penjual", "wa_penjual", "fb_penjual", "harga_beli", 
                 "tanggal_jual", "nama_pembeli", "no_wa", "akun_fb", "harga_jual", "screenshot"
             ]
-            # Terapkan urutan hanya untuk kolom yang memang ada di database
-            kolom_tersedia = [kol untuk kol in urutan_kolom if kol in df.columns]
+            # Menggunakan 'for' bukan 'untuk'
+            kolom_tersedia = [kol for kol in urutan_kolom if kol in df.columns]
             df = df[kolom_tersedia]
             
         else:
@@ -154,7 +154,6 @@ if check_password():
 
     with t2:
         st.subheader("📊 Tabel Seluruh Transaksi")
-        # Tabel ini sekarang akan mengikuti urutan kolom yang sudah kita atur di atas
         st.dataframe(df, use_container_width=True)
         st.markdown("---")
         
