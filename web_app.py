@@ -4,9 +4,9 @@ import pandas as pd
 from datetime import datetime
 
 # --- 1. PENGATURAN HALAMAN UTAMA ---
-st.set_page_config(page_title="MFF Database", page_icon="🎮", layout="wide")
+st.set_page_config(page_title="MFF Database", page_icon="🎮", layout="wide", initial_sidebar_state="expanded")
 
-# --- 2. DESAIN UI KUSTOM (FONT POPPINS, GLOWING TEXT, & GLASSMORPHISM) ---
+# --- 2. DESAIN UI KUSTOM (FONT POPPINS & GLASSMORPHISM) ---
 background_image_url = "https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?q=80&w=2071&auto=format&fit=crop"
 
 st.markdown(
@@ -36,7 +36,6 @@ st.markdown(
         border: 1px solid rgba(255, 255, 255, 0.05);
     }}
 
-    /* EFEK JUDUL GRADASI & GLOWING */
     .glowing-title {{
         font-size: 38px;
         font-weight: 800;
@@ -47,7 +46,6 @@ st.markdown(
         text-shadow: 0px 0px 20px rgba(0, 201, 255, 0.3);
     }}
 
-    /* EFEK KARTU METRIK MODERN */
     [data-testid="stMetric"] {{
         background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
         border: 1px solid rgba(255, 255, 255, 0.1);
@@ -95,11 +93,8 @@ def check_password():
 
 # --- 5. APLIKASI UTAMA ---
 if check_password():
-    # --- PERUBAHAN JUDUL DI SINI ---
-    st.markdown("<h1 class='glowing-title'>☁️ MFF Database Manajemen Buy & Sell</h1>", unsafe_allow_html=True)
-    st.caption("Akses Aman • Analitik Real-time • Data Sinkronisasi Cloud")
-    st.markdown("<br>", unsafe_allow_html=True)
-
+    
+    # Ambil Data
     try:
         response = supabase.table("pendataan_akun").select("*").order('id', desc=True).execute()
         if response.data:
@@ -117,55 +112,75 @@ if check_password():
         st.error(f"Gagal memuat data: {e}")
         st.stop()
 
-    # --- DASHBOARD METRIK & GRAFIK MODERN ---
-    st.markdown("### 📊 Ringkasan Eksekutif")
-    if not df.empty:
-        df['harga_beli'] = pd.to_numeric(df['harga_beli'], errors='coerce').fillna(0)
-        df['harga_jual'] = pd.to_numeric(df['harga_jual'], errors='coerce').fillna(0)
-        df['profit_per_akun'] = df['harga_jual'] - df['harga_beli'] 
+    # --- MENU SIDEBAR PROFESIONAL ---
+    st.sidebar.markdown("### ⚙️ Sistem Navigasi")
+    menu_pilihan = st.sidebar.radio(
+        "Pilih Menu:",
+        ["📊 Dashboard Analitik", "📝 Input Transaksi", "🗄️ Database & Manajemen"]
+    )
+    st.sidebar.markdown("---")
+    if st.sidebar.button("🚪 Logout Sistem"):
+        st.session_state.clear()
+        st.rerun()
 
-        stok = len(df[df['harga_jual'] == 0])
-        terjual = len(df[df['harga_jual'] > 0])
-        modal = df['harga_beli'].sum()
-        nilai_stok = df[df['harga_jual'] == 0]['harga_beli'].sum()
-        total_profit = df[df['harga_jual'] > 0]['profit_per_akun'].sum()
-
-        tanggal_hari_ini = datetime.today().strftime('%Y-%m-%d')
-        df_terjual = df[(df['harga_jual'] > 0) & (df['tanggal_jual'] != "-") & (df['tanggal_jual'].notna())].copy()
-        profit_hari_ini = df_terjual[df_terjual['tanggal_jual'] == tanggal_hari_ini]['profit_per_akun'].sum()
-
-        c1, c2, c3 = st.columns(3)
-        c1.metric("📦 In Stock", f"{stok} Akun")
-        c2.metric("✅ Total Terjual", f"{terjual} Akun")
-        c3.metric("💳 Total Modal", f"Rp {modal:,.0f}")
-        
-        st.markdown("<br>", unsafe_allow_html=True)
-        
-        c4, c5, c6 = st.columns(3)
-        c4.metric("💎 Nilai Aset (Stok)", f"Rp {nilai_stok:,.0f}")
-        c5.metric("💰 Total Profit Bersih", f"Rp {total_profit:,.0f}")
-        c6.metric("🚀 Profit Hari Ini", f"Rp {profit_hari_ini:,.0f}", delta="Cuan Masuk!" if profit_hari_ini > 0 else None)
-
-        st.markdown("---")
-        st.markdown("### 📈 Grafik Pertumbuhan Profit Harian")
-        if not df_terjual.empty:
-            profit_harian = df_terjual.groupby('tanggal_jual')['profit_per_akun'].sum()
-            st.area_chart(profit_harian, use_container_width=True, color="#00C9FF")
-        else:
-            st.info("Belum ada data penjualan untuk ditampilkan di grafik.")
-
+    # Header Aplikasi
+    st.markdown("<h1 class='glowing-title'>☁️ MFF Database Manajemen Buy & Sell</h1>", unsafe_allow_html=True)
+    st.caption("Akses Aman • Analitik Real-time • Data Sinkronisasi Cloud")
     st.markdown("<br>", unsafe_allow_html=True)
-    
-    # --- MENU TAB ---
-    t1, t2 = st.tabs(["📝 Input Transaksi", "📊 Database & Media"])
 
-    with t1:
+    # ==========================================
+    # HALAMAN 1: DASHBOARD ANALITIK
+    # ==========================================
+    if menu_pilihan == "📊 Dashboard Analitik":
+        st.markdown("### 📊 Ringkasan Eksekutif")
+        if not df.empty:
+            df['harga_beli'] = pd.to_numeric(df['harga_beli'], errors='coerce').fillna(0)
+            df['harga_jual'] = pd.to_numeric(df['harga_jual'], errors='coerce').fillna(0)
+            df['profit_per_akun'] = df['harga_jual'] - df['harga_beli'] 
+
+            stok = len(df[df['harga_jual'] == 0])
+            terjual = len(df[df['harga_jual'] > 0])
+            modal = df['harga_beli'].sum()
+            nilai_stok = df[df['harga_jual'] == 0]['harga_beli'].sum()
+            total_profit = df[df['harga_jual'] > 0]['profit_per_akun'].sum()
+
+            tanggal_hari_ini = datetime.today().strftime('%Y-%m-%d')
+            df_terjual = df[(df['harga_jual'] > 0) & (df['tanggal_jual'] != "-") & (df['tanggal_jual'].notna())].copy()
+            profit_hari_ini = df_terjual[df_terjual['tanggal_jual'] == tanggal_hari_ini]['profit_per_akun'].sum()
+
+            c1, c2, c3 = st.columns(3)
+            c1.metric("📦 In Stock", f"{stok} Akun")
+            c2.metric("✅ Total Terjual", f"{terjual} Akun")
+            c3.metric("💳 Total Modal", f"Rp {modal:,.0f}")
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            
+            c4, c5, c6 = st.columns(3)
+            c4.metric("💎 Nilai Aset (Stok)", f"Rp {nilai_stok:,.0f}")
+            c5.metric("💰 Total Profit Bersih", f"Rp {total_profit:,.0f}")
+            c6.metric("🚀 Profit Hari Ini", f"Rp {profit_hari_ini:,.0f}", delta="Cuan Masuk!" if profit_hari_ini > 0 else None)
+
+            st.markdown("---")
+            st.markdown("### 📈 Grafik Pertumbuhan Profit Harian")
+            if not df_terjual.empty:
+                profit_harian = df_terjual.groupby('tanggal_jual')['profit_per_akun'].sum()
+                st.area_chart(profit_harian, use_container_width=True, color="#00C9FF")
+            else:
+                st.info("Belum ada data penjualan untuk ditampilkan di grafik.")
+        else:
+            st.info("Sistem belum memiliki data transaksi untuk dianalisis.")
+
+    # ==========================================
+    # HALAMAN 2: INPUT TRANSAKSI
+    # ==========================================
+    elif menu_pilihan == "📝 Input Transaksi":
+        st.markdown("### 📝 Form Transaksi Baru")
         with st.form("main_form", clear_on_submit=True):
             col_a, col_b = st.columns(2)
             with col_a:
-                st.subheader("🛒 Data Pembelian (Dari Seller)")
+                st.subheader("🛒 Pembelian (Dari Seller)")
                 t_beli = st.date_input("Tanggal Beli")
-                game = st.text_input("Nama Game*")
+                game = st.text_input("Nama Game* (Misal: MFF)")
                 
                 col_em, col_pw = st.columns(2)
                 with col_em:
@@ -174,20 +189,27 @@ if check_password():
                     pass_akun = st.text_input("Password Akun*")
                     
                 seller = st.text_input("Nama Penjual")
-                wa_seller = st.text_input("WhatsApp Penjual")
-                fb_seller = st.text_input("FB Penjual")
+                col_was, col_fbs = st.columns(2)
+                with col_was: wa_seller = st.text_input("WA Penjual")
+                with col_fbs: fb_seller = st.text_input("FB Penjual")
+                
                 h_beli = st.number_input("Harga Beli (Rp)*", min_value=0)
                 ss = st.file_uploader("Upload Bukti Screenshot", type=['png', 'jpg', 'jpeg'])
                 
             with col_b:
-                st.subheader("💰 Data Penjualan (Ke Customer)")
+                st.subheader("💰 Penjualan (Ke Customer)")
+                st.caption("Abaikan bagian ini jika akun belum laku.")
                 t_jual = st.date_input("Tanggal Jual", value=None)
                 buyer = st.text_input("Nama Pembeli")
-                wa_buyer = st.text_input("WhatsApp Pembeli")
-                fb_buyer = st.text_input("FB Pembeli")
+                
+                col_wab, col_fbb = st.columns(2)
+                with col_wab: wa_buyer = st.text_input("WA Pembeli")
+                with col_fbb: fb_buyer = st.text_input("FB Pembeli")
+                
                 h_jual = st.number_input("Harga Jual (Rp)", min_value=0)
 
-            if st.form_submit_button("💾 Simpan Data ke Cloud"):
+            st.markdown("<br>", unsafe_allow_html=True)
+            if st.form_submit_button("💾 Simpan Data ke Cloud Database", use_container_width=True):
                 url = "-"
                 if ss:
                     try:
@@ -205,14 +227,26 @@ if check_password():
                     "harga_jual": float(h_jual), "screenshot": url
                 }
                 supabase.table("pendataan_akun").insert(payload).execute()
-                st.success("Berhasil Disimpan!")
+                st.success("✅ Transaksi Berhasil Disimpan!")
                 st.rerun()
 
-    with t2:
-        st.subheader("📊 Tabel Seluruh Transaksi")
+    # ==========================================
+    # HALAMAN 3: DATABASE & MANAJEMEN
+    # ==========================================
+    elif menu_pilihan == "🗄️ Database & Manajemen":
+        st.markdown("### 🗄️ Pusat Database")
+        
+        # Fitur Pencarian Pintar
+        search_query = st.text_input("🔍 Cari Akun (Berdasarkan Email, Nama Pembeli, atau Penjual):", placeholder="Ketik kata kunci...")
+        
+        df_display = df.copy()
+        if search_query:
+            # Menyaring baris yang mengandung teks pencarian (tidak peduli huruf besar/kecil)
+            mask = df_display.astype(str).apply(lambda x: x.str.contains(search_query, case=False)).any(axis=1)
+            df_display = df_display[mask]
         
         st.dataframe(
-            df,
+            df_display,
             use_container_width=True,
             hide_index=True, 
             column_config={
@@ -239,9 +273,9 @@ if check_password():
                     st.info("Belum ada bukti screenshot yang diupload.")
         
         with col_manage:
-            st.subheader("⚙️ Kelola Data")
+            st.subheader("⚙️ Kelola Data Spesifik")
             if not df.empty:
-                tab_edit, tab_hapus = st.tabs(["📝 Edit Data Lanjutan", "🗑️ Hapus"])
+                tab_edit, tab_hapus = st.tabs(["📝 Edit Data", "🗑️ Hapus Data"])
                 
                 with tab_edit:
                     eid = st.selectbox("Pilih ID untuk diedit:", df['id'].tolist())
@@ -258,15 +292,9 @@ if check_password():
                             except:
                                 val_tb = datetime.today().date()
                             etb = st.date_input("Tanggal Beli", value=val_tb)
-                            
                             eg = st.text_input("Game", value=row['nama_game'])
-                            
-                            e_col_em, e_col_pw = st.columns(2)
-                            with e_col_em:
-                                ee = st.text_input("Email", value=row['email_akun'])
-                            with e_col_pw:
-                                epa = st.text_input("Password Akun", value=row.get('password_akun','-')) 
-                            
+                            ee = st.text_input("Email", value=row['email_akun'])
+                            epa = st.text_input("Password Akun", value=row.get('password_akun','-')) 
                             es = st.text_input("Seller", value=row.get('nama_penjual',''))
                             ews = st.text_input("WA Seller", value=row.get('wa_penjual',''))
                             efs = st.text_input("FB Seller", value=row.get('fb_penjual',''))
@@ -279,13 +307,12 @@ if check_password():
                             except:
                                 val_tj = None
                             etj = st.date_input("Tanggal Jual", value=val_tj)
-                            
                             eb = st.text_input("Buyer", value=row['nama_pembeli'])
                             ewb = st.text_input("WA Buyer", value=row['no_wa'])
                             efb = st.text_input("FB Buyer", value=row.get('akun_fb',''))
                             ehj = st.number_input("Harga Jual", value=float(row['harga_jual']))
                             
-                        if st.form_submit_button("💾 Update Seluruh Data"):
+                        if st.form_submit_button("💾 Update Seluruh Data", use_container_width=True):
                             upd = {
                                 "tanggal_beli": str(etb) if etb else "-", 
                                 "nama_game": eg, "email_akun": ee, 
@@ -300,11 +327,7 @@ if check_password():
                 
                 with tab_hapus:
                     did = st.number_input("Masukkan ID yang akan dihapus:", min_value=0, step=1)
-                    if st.button("Hapus Permanen", type="primary"):
+                    if st.button("🚨 Hapus Permanen", type="primary"):
                         supabase.table("pendataan_akun").delete().eq("id", did).execute()
                         st.success(f"ID {did} Terhapus!")
                         st.rerun()
-    
-    if st.sidebar.button("🚪 Logout"):
-        st.session_state.clear()
-        st.rerun()
