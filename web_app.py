@@ -6,7 +6,7 @@ from datetime import datetime
 # --- 1. PENGATURAN HALAMAN UTAMA ---
 st.set_page_config(page_title="MFF Database", page_icon="🎮", layout="wide", initial_sidebar_state="expanded")
 
-# --- 2. DESAIN UI KUSTOM (FONT POPPINS & GLASSMORPHISM) ---
+# --- 2. DESAIN UI KUSTOM TINGKAT LANJUT ---
 background_image_url = "https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?q=80&w=2071&auto=format&fit=crop"
 
 st.markdown(
@@ -18,6 +18,7 @@ st.markdown(
         font-family: 'Poppins', sans-serif;
     }}
 
+    /* Latar Belakang Utama */
     .stApp {{
         background-image: url("{background_image_url}");
         background-size: cover;
@@ -26,6 +27,7 @@ st.markdown(
     }}
     .stApp > header {{ background-color: transparent; }}
     
+    /* Kontainer Utama Glassmorphism */
     .block-container {{
         background-color: rgba(14, 17, 23, 0.85); 
         padding: 2.5rem;
@@ -36,6 +38,63 @@ st.markdown(
         border: 1px solid rgba(255, 255, 255, 0.05);
     }}
 
+    /* --- DESAIN SIDEBAR KHUSUS --- */
+    [data-testid="stSidebar"] {{
+        background: linear-gradient(180deg, #0b0f19 0%, #161b22 100%) !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+        position: relative;
+        overflow: hidden;
+    }}
+    
+    /* Shape Cahaya Atas Sidebar */
+    [data-testid="stSidebar"]::before {{
+        content: "";
+        position: absolute;
+        top: -100px;
+        left: -100px;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(0, 201, 255, 0.15) 0%, transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 0;
+    }}
+
+    /* Shape Cahaya Bawah Sidebar */
+    [data-testid="stSidebar"]::after {{
+        content: "";
+        position: absolute;
+        bottom: -100px;
+        right: -100px;
+        width: 250px;
+        height: 250px;
+        background: radial-gradient(circle, rgba(146, 254, 157, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 0;
+    }}
+
+    /* Tombol Menu Sidebar (Pill Shape) */
+    .stRadio > div {{
+        gap: 12px;
+        position: relative;
+        z-index: 1;
+    }}
+    .stRadio > div > label {{
+        background: rgba(255, 255, 255, 0.03) !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        border-radius: 12px !important;
+        padding: 12px 15px !important;
+        transition: all 0.3s ease !important;
+        cursor: pointer;
+    }}
+    .stRadio > div > label:hover {{
+        background: linear-gradient(90deg, rgba(0, 201, 255, 0.1) 0%, transparent 100%) !important;
+        border-color: rgba(0, 201, 255, 0.4) !important;
+        transform: translateX(8px);
+    }}
+
+    /* Teks Glowing */
     .glowing-title {{
         font-size: 38px;
         font-weight: 800;
@@ -46,6 +105,7 @@ st.markdown(
         text-shadow: 0px 0px 20px rgba(0, 201, 255, 0.3);
     }}
 
+    /* Kartu Metrik Modern */
     [data-testid="stMetric"] {{
         background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
         border: 1px solid rgba(255, 255, 255, 0.1);
@@ -115,11 +175,15 @@ if check_password():
     # --- MENU SIDEBAR PROFESIONAL ---
     st.sidebar.markdown("### ⚙️ Sistem Navigasi")
     menu_pilihan = st.sidebar.radio(
-        "Pilih Menu:",
-        ["📊 Dashboard Analitik", "📝 Input Transaksi", "🗄️ Database & Manajemen"]
+        "Menu Utama:",
+        ["📊 Dashboard Analitik", "📝 Input Transaksi", "🗄️ Database & Manajemen"],
+        label_visibility="collapsed" # Menyembunyikan label "Menu Utama" agar lebih bersih
     )
+    
+    st.sidebar.markdown("<br><br><br>", unsafe_allow_html=True)
     st.sidebar.markdown("---")
-    if st.sidebar.button("🚪 Logout Sistem"):
+    st.sidebar.caption("Sistem MFF Pro v2.0")
+    if st.sidebar.button("🚪 Logout Sistem", use_container_width=True):
         st.session_state.clear()
         st.rerun()
 
@@ -236,12 +300,10 @@ if check_password():
     elif menu_pilihan == "🗄️ Database & Manajemen":
         st.markdown("### 🗄️ Pusat Database")
         
-        # Fitur Pencarian Pintar
         search_query = st.text_input("🔍 Cari Akun (Berdasarkan Email, Nama Pembeli, atau Penjual):", placeholder="Ketik kata kunci...")
         
         df_display = df.copy()
         if search_query:
-            # Menyaring baris yang mengandung teks pencarian (tidak peduli huruf besar/kecil)
             mask = df_display.astype(str).apply(lambda x: x.str.contains(search_query, case=False)).any(axis=1)
             df_display = df_display[mask]
         
