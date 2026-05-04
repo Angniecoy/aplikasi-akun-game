@@ -6,12 +6,18 @@ from datetime import datetime
 # --- 1. PENGATURAN HALAMAN UTAMA ---
 st.set_page_config(page_title="Sistem Akun Game Pro", page_icon="🎮", layout="wide")
 
-# --- 2. DESAIN UI KUSTOM ---
+# --- 2. DESAIN UI KUSTOM (FONT POPPINS, GLOWING TEXT, & GLASSMORPHISM) ---
 background_image_url = "https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?q=80&w=2071&auto=format&fit=crop"
 
 st.markdown(
     f"""
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap');
+
+    html, body, [class*="css"] {{
+        font-family: 'Poppins', sans-serif;
+    }}
+
     .stApp {{
         background-image: url("{background_image_url}");
         background-size: cover;
@@ -22,27 +28,39 @@ st.markdown(
     
     .block-container {{
         background-color: rgba(14, 17, 23, 0.85); 
-        padding: 2rem;
-        border-radius: 15px;
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(5px);
+        padding: 2.5rem;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(8px);
         margin-top: 2rem;
+        border: 1px solid rgba(255, 255, 255, 0.05);
     }}
 
-    /* EFEK KARTU MODERN DASHBOARD */
+    /* EFEK JUDUL GRADASI & GLOWING */
+    .glowing-title {{
+        font-size: 38px;
+        font-weight: 800;
+        background: linear-gradient(90deg, #00C9FF 0%, #92FE9D 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0px;
+        text-shadow: 0px 0px 20px rgba(0, 201, 255, 0.3);
+    }}
+
+    /* EFEK KARTU METRIK MODERN */
     [data-testid="stMetric"] {{
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
         border: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 15px 20px;
-        border-radius: 15px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        transition: all 0.3s ease;
+        padding: 20px;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
     }}
     [data-testid="stMetric"]:hover {{
-        transform: translateY(-5px);
-        border-color: rgba(255, 255, 255, 0.4);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.5);
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+        transform: translateY(-7px);
+        border-color: rgba(0, 201, 255, 0.5);
+        box-shadow: 0 10px 30px rgba(0, 201, 255, 0.2);
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
     }}
     </style>
     """,
@@ -64,12 +82,12 @@ def check_password():
             st.session_state["password_correct"] = False
 
     if "password_correct" not in st.session_state:
-        st.title("🔒 Copyright Fani")
+        st.markdown("<h1 class='glowing-title'>🔒 Copyright Fani</h1>", unsafe_allow_html=True)
         st.info("Silakan masukkan password untuk mengakses sistem manajemen.")
         st.text_input("Password:", type="password", on_change=password_entered, key="password")
         return False
     elif not st.session_state["password_correct"]:
-        st.title("🔒 Copyright Fani")
+        st.markdown("<h1 class='glowing-title'>🔒 Copyright Fani</h1>", unsafe_allow_html=True)
         st.text_input("Password:", type="password", on_change=password_entered, key="password")
         st.error("⚠️ Password salah. Silakan coba lagi.")
         return False
@@ -77,14 +95,15 @@ def check_password():
 
 # --- 5. APLIKASI UTAMA ---
 if check_password():
-    st.title("☁️ Sistem Manajemen Bisnis Akun Game (Pro Cloud)")
-    st.caption("Akses Aman • Data Pembelian & Penjualan Lengkap")
+    # Menggunakan Custom HTML untuk Judul
+    st.markdown("<h1 class='glowing-title'>☁️ Pusat Kendali Bisnis Pro</h1>", unsafe_allow_html=True)
+    st.caption("Akses Aman • Analitik Real-time • Data Sinkronisasi Cloud")
+    st.markdown("<br>", unsafe_allow_html=True)
 
     try:
         response = supabase.table("pendataan_akun").select("*").order('id', desc=True).execute()
         if response.data:
             df = pd.DataFrame(response.data)
-            
             urutan_kolom = [
                 "id", "tanggal_beli", "tanggal_jual", "nama_game", "nama_penjual", 
                 "email_akun", "password_akun", "wa_penjual", "fb_penjual", 
@@ -99,11 +118,11 @@ if check_password():
         st.stop()
 
     # --- DASHBOARD METRIK & GRAFIK MODERN ---
-    st.markdown("### 📊 Ringkasan Keuangan & Stok")
+    st.markdown("### 📊 Ringkasan Eksekutif")
     if not df.empty:
         df['harga_beli'] = pd.to_numeric(df['harga_beli'], errors='coerce').fillna(0)
         df['harga_jual'] = pd.to_numeric(df['harga_jual'], errors='coerce').fillna(0)
-        df['profit_per_akun'] = df['harga_jual'] - df['harga_beli'] # Hitung profit per baris
+        df['profit_per_akun'] = df['harga_jual'] - df['harga_beli'] 
 
         stok = len(df[df['harga_jual'] == 0])
         terjual = len(df[df['harga_jual'] > 0])
@@ -111,12 +130,10 @@ if check_password():
         nilai_stok = df[df['harga_jual'] == 0]['harga_beli'].sum()
         total_profit = df[df['harga_jual'] > 0]['profit_per_akun'].sum()
 
-        # Hitung Profit Hari Ini
         tanggal_hari_ini = datetime.today().strftime('%Y-%m-%d')
         df_terjual = df[(df['harga_jual'] > 0) & (df['tanggal_jual'] != "-") & (df['tanggal_jual'].notna())].copy()
         profit_hari_ini = df_terjual[df_terjual['tanggal_jual'] == tanggal_hari_ini]['profit_per_akun'].sum()
 
-        # Layout Kartu 2 Baris (agar lebih elegan)
         c1, c2, c3 = st.columns(3)
         c1.metric("📦 In Stock", f"{stok} Akun")
         c2.metric("✅ Total Terjual", f"{terjual} Akun")
@@ -125,23 +142,19 @@ if check_password():
         st.markdown("<br>", unsafe_allow_html=True)
         
         c4, c5, c6 = st.columns(3)
-        c4.metric("💎 Nilai Stok Belum Terjual", f"Rp {nilai_stok:,.0f}")
-        c5.metric("💰 Total Profit Keseluruhan", f"Rp {total_profit:,.0f}")
-        c6.metric("🚀 Profit Hari Ini", f"Rp {profit_hari_ini:,.0f}", delta="Pemasukan Baru")
+        c4.metric("💎 Nilai Aset (Stok)", f"Rp {nilai_stok:,.0f}")
+        c5.metric("💰 Total Profit Bersih", f"Rp {total_profit:,.0f}")
+        c6.metric("🚀 Profit Hari Ini", f"Rp {profit_hari_ini:,.0f}", delta="Cuan Masuk!" if profit_hari_ini > 0 else None)
 
-        # --- GRAFIK PROFIT HARIAN ---
         st.markdown("---")
-        st.markdown("### 📈 Grafik Profit Harian")
+        st.markdown("### 📈 Grafik Pertumbuhan Profit Harian")
         if not df_terjual.empty:
-            # Kelompokkan data berdasarkan tanggal_jual dan jumlahkan profitnya
             profit_harian = df_terjual.groupby('tanggal_jual')['profit_per_akun'].sum()
-            # Tampilkan menggunakan Bar Chart (Grafik Batang)
-            st.bar_chart(profit_harian, use_container_width=True)
+            st.area_chart(profit_harian, use_container_width=True, color="#00C9FF") # Diubah jadi Area Chart yang lebih estetik
         else:
             st.info("Belum ada data penjualan untuk ditampilkan di grafik.")
 
     st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown("---")
     
     # --- MENU TAB ---
     t1, t2 = st.tabs(["📝 Input Transaksi", "📊 Database & Media"])
@@ -197,7 +210,20 @@ if check_password():
 
     with t2:
         st.subheader("📊 Tabel Seluruh Transaksi")
-        st.dataframe(df, use_container_width=True)
+        
+        # --- KODE BARU: SMART DATAFRAME FORMATTING ---
+        st.dataframe(
+            df,
+            use_container_width=True,
+            hide_index=True, # Menyembunyikan nomor index bawaan (0, 1, 2...) agar lebih bersih
+            column_config={
+                "id": st.column_config.NumberColumn("ID", format="%d"),
+                "harga_beli": st.column_config.NumberColumn("Harga Beli", format="Rp %d"),
+                "harga_jual": st.column_config.NumberColumn("Harga Jual", format="Rp %d"),
+                "screenshot": st.column_config.LinkColumn("Screenshot", display_text="Lihat Gambar"),
+                "profit_per_akun": None # Menyembunyikan kolom profit hitungan sementara dari tabel utama
+            }
+        )
         st.markdown("---")
         
         col_view, col_manage = st.columns([1, 1])
