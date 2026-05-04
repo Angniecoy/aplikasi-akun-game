@@ -4,7 +4,7 @@ import pandas as pd
 from datetime import datetime
 
 # --- 1. PENGATURAN HALAMAN UTAMA ---
-st.set_page_config(page_title="Sistem Akun Game Pro", page_icon="🎮", layout="wide")
+st.set_page_config(page_title="MFF Database", page_icon="🎮", layout="wide")
 
 # --- 2. DESAIN UI KUSTOM (FONT POPPINS, GLOWING TEXT, & GLASSMORPHISM) ---
 background_image_url = "https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?q=80&w=2071&auto=format&fit=crop"
@@ -83,7 +83,7 @@ def check_password():
 
     if "password_correct" not in st.session_state:
         st.markdown("<h1 class='glowing-title'>🔒 Copyright Fani</h1>", unsafe_allow_html=True)
-        st.info("Silakan masukkan password untuk mengakses sistem manajemen.")
+        st.info("Silakan masukkan password untuk mengakses MFF Database Manajemen.")
         st.text_input("Password:", type="password", on_change=password_entered, key="password")
         return False
     elif not st.session_state["password_correct"]:
@@ -95,8 +95,8 @@ def check_password():
 
 # --- 5. APLIKASI UTAMA ---
 if check_password():
-    # Menggunakan Custom HTML untuk Judul
-    st.markdown("<h1 class='glowing-title'>☁️ Pusat Kendali Bisnis Pro</h1>", unsafe_allow_html=True)
+    # --- PERUBAHAN JUDUL DI SINI ---
+    st.markdown("<h1 class='glowing-title'>☁️ MFF Database Manajemen Buy & Sell</h1>", unsafe_allow_html=True)
     st.caption("Akses Aman • Analitik Real-time • Data Sinkronisasi Cloud")
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -150,7 +150,7 @@ if check_password():
         st.markdown("### 📈 Grafik Pertumbuhan Profit Harian")
         if not df_terjual.empty:
             profit_harian = df_terjual.groupby('tanggal_jual')['profit_per_akun'].sum()
-            st.area_chart(profit_harian, use_container_width=True, color="#00C9FF") # Diubah jadi Area Chart yang lebih estetik
+            st.area_chart(profit_harian, use_container_width=True, color="#00C9FF")
         else:
             st.info("Belum ada data penjualan untuk ditampilkan di grafik.")
 
@@ -211,17 +211,16 @@ if check_password():
     with t2:
         st.subheader("📊 Tabel Seluruh Transaksi")
         
-        # --- KODE BARU: SMART DATAFRAME FORMATTING ---
         st.dataframe(
             df,
             use_container_width=True,
-            hide_index=True, # Menyembunyikan nomor index bawaan (0, 1, 2...) agar lebih bersih
+            hide_index=True, 
             column_config={
                 "id": st.column_config.NumberColumn("ID", format="%d"),
                 "harga_beli": st.column_config.NumberColumn("Harga Beli", format="Rp %d"),
                 "harga_jual": st.column_config.NumberColumn("Harga Jual", format="Rp %d"),
                 "screenshot": st.column_config.LinkColumn("Screenshot", display_text="Lihat Gambar"),
-                "profit_per_akun": None # Menyembunyikan kolom profit hitungan sementara dari tabel utama
+                "profit_per_akun": None 
             }
         )
         st.markdown("---")
