@@ -159,15 +159,23 @@ if check_password():
         response = supabase.table("pendataan_akun").select("*").order('id', desc=True).execute()
         if response.data:
             df = pd.DataFrame(response.data)
+            
+            # --- PENAMBAHAN STATUS STOK OTOMATIS ---
+            # Sistem akan mengecek kolom harga_jual. Jika 0, maka Tersedia.
+            df['status_stok'] = pd.to_numeric(df['harga_jual'], errors='coerce').fillna(0).apply(
+                lambda x: "🟢 Tersedia" if x == 0 else "🔴 Terjual"
+            )
+            
+            # Memasukkan status_stok di sebelah tanggal_jual
             urutan_kolom = [
-                "id", "tanggal_beli", "tanggal_jual", "nama_game", "nama_penjual", 
+                "id", "tanggal_beli", "tanggal_jual", "status_stok", "nama_game", "nama_penjual", 
                 "email_akun", "password_akun", "wa_penjual", "fb_penjual", 
                 "harga_beli", "nama_pembeli", "no_wa", "akun_fb", "harga_jual", "screenshot"
             ]
             kolom_tersedia = [kol for kol in urutan_kolom if kol in df.columns]
             df = df[kolom_tersedia]
         else:
-            df = pd.DataFrame(columns=["id", "tanggal_beli", "tanggal_jual", "nama_game", "nama_penjual", "email_akun", "password_akun", "wa_penjual", "fb_penjual", "harga_beli", "nama_pembeli", "no_wa", "akun_fb", "harga_jual", "screenshot"])
+            df = pd.DataFrame(columns=["id", "tanggal_beli", "tanggal_jual", "status_stok", "nama_game", "nama_penjual", "email_akun", "password_akun", "wa_penjual", "fb_penjual", "harga_beli", "nama_pembeli", "no_wa", "akun_fb", "harga_jual", "screenshot"])
     except Exception as e:
         st.error(f"Gagal memuat data: {e}")
         st.stop()
@@ -177,7 +185,7 @@ if check_password():
     menu_pilihan = st.sidebar.radio(
         "Menu Utama:",
         ["📊 Dashboard Analitik", "📝 Input Transaksi", "🗄️ Database & Manajemen"],
-        label_visibility="collapsed" # Menyembunyikan label "Menu Utama" agar lebih bersih
+        label_visibility="collapsed"
     )
     
     st.sidebar.markdown("<br><br><br>", unsafe_allow_html=True)
@@ -300,7 +308,7 @@ if check_password():
     elif menu_pilihan == "🗄️ Database & Manajemen":
         st.markdown("### 🗄️ Pusat Database")
         
-        search_query = st.text_input("🔍 Cari Akun (Berdasarkan Email, Nama Pembeli, atau Penjual):", placeholder="Ketik kata kunci...")
+        search_query = st.text_input("🔍 Cari Akun (Berdasarkan Email, Nama, atau Status):", placeholder="Ketik kata kunci (Misal: Tersedia)...")
         
         df_display = df.copy()
         if search_query:
@@ -313,6 +321,7 @@ if check_password():
             hide_index=True, 
             column_config={
                 "id": st.column_config.NumberColumn("ID", format="%d"),
+                "status_stok": st.column_config.TextColumn("Status Stok"), # Kolom baru diatur agar rapi
                 "harga_beli": st.column_config.NumberColumn("Harga Beli", format="Rp %d"),
                 "harga_jual": st.column_config.NumberColumn("Harga Jual", format="Rp %d"),
                 "screenshot": st.column_config.LinkColumn("Screenshot", display_text="Lihat Gambar"),
