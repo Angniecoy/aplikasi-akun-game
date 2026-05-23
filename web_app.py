@@ -125,4 +125,29 @@ if check_password():
             kolom_tersedia = [kol for kol in urutan_kolom if kol in df.columns]
             df = df[kolom_tersedia]
         else:
-            df = pd.DataFrame(columns=["id", "tanggal_beli", "tanggal_jual", "status_stok", "nama_game", "nama_pen
+            df = pd.DataFrame(columns=["id", "tanggal_beli", "tanggal_jual", "status_stok", "nama_game", "nama_penjual", "email_akun", "password_akun", "wa_penjual", "fb_penjual", "harga_beli", "nama_pembeli", "no_wa", "akun_fb", "harga_jual", "screenshot"])
+    except Exception as e:
+        st.error(f"Gagal memuat data: {e}")
+        st.stop()
+
+    # --- MENU SIDEBAR ---
+    st.sidebar.markdown("### ⚙️ Sistem Navigasi")
+    menu_pilihan = st.sidebar.radio(
+        "Menu Utama:",
+        ["📊 Dashboard Analitik", "📝 Input Transaksi", "🗄️ Database & Manajemen"],
+        label_visibility="collapsed"
+    )
+    
+    st.sidebar.markdown("<br><br><br>", unsafe_allow_html=True)
+    st.sidebar.markdown("---")
+    st.sidebar.caption("Sistem MFF Pro v2.6")
+    if st.sidebar.button("🚪 Logout Sistem", use_container_width=True):
+        st.session_state.clear()
+        st.rerun()
+
+    st.markdown("<h1 class='glowing-title'>☁️ MFF Database Manajemen Buy & Sell</h1>", unsafe_allow_html=True)
+    st.caption("Akses Aman • Analitik Real-time • Data Sinkronisasi Cloud")
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # ==========================================
+    # HALAMAN 1
