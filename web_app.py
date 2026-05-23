@@ -78,8 +78,7 @@ st.markdown(
         box-shadow: 0 10px 30px rgba(0, 201, 255, 0.2); background: linear-gradient(145deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
     }}
     </style>
-    """,
-    unsafe_allow_html=True
+    """
 )
 
 # --- 3. KONEKSI SUPABASE ---
@@ -103,4 +102,27 @@ def check_password():
         return False
     elif not st.session_state["password_correct"]:
         st.markdown("<h1 class='glowing-title'>🔒 Copyright Fani</h1>", unsafe_allow_html=True)
-        st.text_input("Password:", type="password", on_change
+        st.text_input("Password:", type="password", on_change=password_entered, key="password")
+        st.error("⚠️ Password salah. Silakan coba lagi.")
+        return False
+    return True
+
+# --- 5. APLIKASI UTAMA ---
+if check_password():
+    
+    try:
+        response = supabase.table("pendataan_akun").select("*").order('id', desc=True).execute()
+        if response.data:
+            df = pd.DataFrame(response.data)
+            df['status_stok'] = pd.to_numeric(df['harga_jual'], errors='coerce').fillna(0).apply(
+                lambda x: "🟢 Tersedia" if x == 0 else "🔴 Terjual"
+            )
+            urutan_kolom = [
+                "id", "tanggal_beli", "tanggal_jual", "status_stok", "nama_game", "nama_penjual", 
+                "email_akun", "password_akun", "wa_penjual", "fb_penjual", 
+                "harga_beli", "nama_pembeli", "no_wa", "akun_fb", "harga_jual", "screenshot"
+            ]
+            kolom_tersedia = [kol for kol in urutan_kolom if kol in df.columns]
+            df = df[kolom_tersedia]
+        else:
+            df = pd.DataFrame(columns=["id", "tanggal_beli", "tanggal_jual", "status_stok", "nama_game", "nama_pen
