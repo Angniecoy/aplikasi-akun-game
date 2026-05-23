@@ -71,30 +71,4 @@ st.markdown(
     [data-testid="stMetric"] {{
         background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
         border: 1px solid rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 16px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.15); transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-    }}
-    [data-testid="stMetric"]:hover {{
-        transform: translateY(-7px); border-color: rgba(0, 201, 255, 0.5);
-        box-shadow: 0 10px 30px rgba(0, 201, 255, 0.2); background: linear-gradient(145deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
-    }}
-    </style>
-    """
-)
-
-# --- 3. KONEKSI SUPABASE ---
-SUPABASE_URL = "https://elnedvfsuxfdizrpciwb.supabase.co"
-SUPABASE_KEY = "sb_publishable_Z3h1zSRnCH5N2LStz_i_aQ__FsnB0Rh"
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-
-# --- 4. SISTEM KEAMANAN ---
-def check_password():
-    def password_entered():
-        if st.session_state["password"] == "131313":
-            st.session_state["password_correct"] = True
-            del st.session_state["password"] 
-        else:
-            st.session_state["password_correct"] = False
-
-    if "password_correct" not in st.session_state:
-        st.markdown("<h1 class='glowing-title'>🔒 Copyright Fani</h1>", unsafe_allow_html=True)
-        st.info("Sil
+        box-shadow: 0 4px
