@@ -373,7 +373,8 @@ if check_password():
                     ss_edit = st.file_uploader("🖼️ Update Screenshot Baru", type=['png', 'jpg', 'jpeg'], key=f"ss_{eid}")
                         
                     if st.form_submit_button("💾 Update Seluruh Data", use_container_width=True, key=f"btn_{eid}"):
-                   upd = {
+                    # Semuanya di bawah ini HARUS menjorok ke dalam (di-tab)
+                    upd = {
                         "nama_game": eg, 
                         "email_akun": ee, 
                         "password_akun": epa,
@@ -386,6 +387,7 @@ if check_password():
                         "akun_fb": efb, 
                         "harga_jual": ehj
                     }
+                    
                     if ss_edit:
                         fname = f"edit_{eid}_{ss_edit.name}".replace(" ","_")
                         supabase.storage.from_("screenshots").upload(fname, ss_edit.getvalue())
