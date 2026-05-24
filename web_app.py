@@ -397,7 +397,7 @@ if check_password():
                         ehj = st.number_input("Harga Jual", value=float(row_edit.get('harga_jual', 0)))
                         ss_edit = st.file_uploader("🖼️ Update Screenshot Baru", type=['png', 'jpg', 'jpeg'])
 
-                    if st.form_submit_button("💾 Update Seluruh Data", use_container_width=True):
+                    if st.form_submit_button("💾 Update Seluruh Data", use_container_width=True, key=f"btn_{eid}"):
                         upd = {
                             "nama_game": eg, "email_akun": ee, "password_akun": epa,
                             "nama_penjual": es, "harga_beli": ehb,
@@ -407,6 +407,9 @@ if check_password():
                             fname = f"edit_{eid}_{ss_edit.name}".replace(" ","_")
                             supabase.storage.from_("screenshots").upload(fname, ss_edit.getvalue())
                             upd["screenshot"] = supabase.storage.from_("screenshots").get_public_url(fname)
+                        
+                        supabase.table("pendataan_akun").update(upd).eq("id", eid).execute()
+                        st.success("Data berhasil diupdate!"); st.rerun()
                         
                         supabase.table("pendataan_akun").update(upd).eq("id", eid).execute()
                         st.success("Data berhasil diupdate!"); st.rerun()
