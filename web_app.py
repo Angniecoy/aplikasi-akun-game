@@ -347,29 +347,32 @@ if check_password():
             tab_edit, tab_hapus = st.tabs(["📝 Edit Data", "🗑️ Hapus Data"])
             
             with tab_edit:
-                eid = st.selectbox("Pilih ID Akun yang ingin Anda edit:", df['id'].tolist(), key="select_edit")
+                # Tambahkan key unik pada selectbox pemilihan ID
+                eid = st.selectbox("Pilih ID Akun yang ingin Anda edit:", df['id'].tolist(), key="main_edit_select")
                 row_edit = df[df['id'] == eid].iloc[0]
                 
-                with st.form(f"edit_form_{eid}"):
+                # Gunakan key unik pada form itu sendiri
+                with st.form(f"edit_form_unique_{eid}"):
                     st.info(f"Silakan perbarui rincian data untuk ID: {eid}")
                     e_col1, e_col2 = st.columns(2)
                     
                     with e_col1:
                         st.caption("🛍️ PEMBELIAN (MODAL)")
-                        # Tambahkan key unik berdasarkan eid
-                        eg = st.text_input("Game", value=row_edit['nama_game'], key=f"eg_{eid}")
-                        ee = st.text_input("Email", value=row_edit.get('email_akun', ''), key=f"ee_{eid}")
-                        epa = st.text_input("Password", value=row_edit.get('password_akun', ''), key=f"epa_{eid}")
-                        es = st.text_input("Seller", value=row_edit.get('nama_penjual', ''), key=f"es_{eid}")
-                        ehb = st.number_input("Harga Beli", value=float(row_edit.get('harga_beli', 0)), key=f"ehb_{eid}")
+                        # Setiap input HARUS punya key unik yang mengandung {eid}
+                        eg = st.text_input("Game", value=row_edit['nama_game'], key=f"edit_game_{eid}")
+                        ee = st.text_input("Email", value=row_edit.get('email_akun', ''), key=f"edit_email_{eid}")
+                        epa = st.text_input("Password", value=row_edit.get('password_akun', ''), key=f"edit_pass_{eid}")
+                        es = st.text_input("Seller", value=row_edit.get('nama_penjual', ''), key=f"edit_seller_{eid}")
+                        ehb = st.number_input("Harga Beli", value=float(row_edit.get('harga_beli', 0)), key=f"edit_hb_{eid}")
                         
                     with e_col2:
                         st.caption("💰 PENJUALAN (PROFIT)")
-                        eb = st.text_input("Buyer", value=row_edit.get('nama_pembeli', ''), key=f"eb_{eid}")
-                        ehj = st.number_input("Harga Jual", value=float(row_edit.get('harga_jual', 0)), key=f"ehj_{eid}")
-                        ss_edit = st.file_uploader("🖼️ Update Screenshot Baru", type=['png', 'jpg', 'jpeg'], key=f"ss_{eid}")
+                        eb = st.text_input("Buyer", value=row_edit.get('nama_pembeli', ''), key=f"edit_buyer_{eid}")
+                        ehj = st.number_input("Harga Jual", value=float(row_edit.get('harga_jual', 0)), key=f"edit_hj_{eid}")
+                        ss_edit = st.file_uploader("🖼️ Update Screenshot Baru", type=['png', 'jpg', 'jpeg'], key=f"edit_ss_{eid}")
 
-                    if st.form_submit_button("💾 Update Seluruh Data", use_container_width=True):
+                    # Tombol submit dengan key unik juga
+                    if st.form_submit_button("💾 Update Seluruh Data", use_container_width=True, key=f"btn_update_{eid}"):
                         upd = {
                             "nama_game": eg, "email_akun": ee, "password_akun": epa,
                             "nama_penjual": es, "harga_beli": ehb,
@@ -381,7 +384,8 @@ if check_password():
                             upd["screenshot"] = supabase.storage.from_("screenshots").get_public_url(fname)
                         
                         supabase.table("pendataan_akun").update(upd).eq("id", eid).execute()
-                        st.success("Data berhasil diupdate!"); st.rerun()
+                        st.success("Data berhasil diupdate!")
+                        st.rerun()
                     
                     with e_col1:
                         st.caption("🛍️ PEMBELIAN (MODAL)")
