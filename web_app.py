@@ -351,8 +351,8 @@ if check_password():
                 row_edit = df[df['id'] == eid].iloc[0]
                 
                 with st.form(f"edit_form_{eid}"):
-                st.info(f"Silakan perbarui rincian data untuk ID: {eid}")
-                c1, c2 = st.columns(2)
+                    st.info(f"Silakan perbarui rincian data untuk ID: {eid}")
+                    c1, c2 = st.columns(2)
                 
                 with c1:
                     st.caption("🛍️ PEMBELIAN (MODAL)")
