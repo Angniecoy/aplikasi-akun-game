@@ -347,47 +347,52 @@ if check_password():
             tab_edit, tab_hapus = st.tabs(["📝 Edit Data", "🗑️ Hapus Data"])
             
             with tab_edit:
-                eid = st.selectbox("Pilih ID Akun yang ingin Anda edit:", df['id'].tolist(), key="select_edit")
+                eid = st.selectbox("Pilih ID Akun:", df['id'].tolist(), key="select_edit")
                 row_edit = df[df['id'] == eid].iloc[0]
+            
+                with st.form(f"edit_form_{eid}"):
+                    st.info(f"Silakan perbarui rincian data untuk ID: {eid}")
+                    c1, c2 = st.columns(2)
                 
-            with st.form(f"edit_form_{eid}"):
-                st.info(f"Silakan perbarui rincian data untuk ID: {eid}")
-                c1, c2 = st.columns(2)
+                    with c1:
+                        st.caption("🛍️ PEMBELIAN (MODAL)")
+                        # Menambahkan Tanggal Beli
+                        t_beli = st.date_input("Tanggal Beli", value=pd.to_datetime(row_edit['tanggal_beli']).date() if row_edit['tanggal_beli'] != "-" else datetime.today(), key=f"tb_{eid}")
+                        eg = st.text_input("Game", value=row_edit['nama_game'], key=f"eg_{eid}")
+                        ee = st.text_input("Email Akun", value=row_edit.get('email_akun', ''), key=f"ee_{eid}")
+                        epa = st.text_input("Password Akun", value=row_edit.get('password_akun', ''), key=f"epa_{eid}")
+                        es = st.text_input("Nama Penjual", value=row_edit.get('nama_penjual', ''), key=f"es_{eid}")
+                        ews = st.text_input("WA Penjual", value=row_edit.get('wa_penjual', ''), key=f"ews_{eid}")
+                        efs = st.text_input("FB Penjual", value=row_edit.get('fb_penjual', ''), key=f"efs_{eid}")
+                        ehb = st.number_input("Harga Beli", value=float(row_edit.get('harga_beli', 0)), key=f"ehb_{eid}")
                 
-                with c1:
-                    st.caption("🛍️ PEMBELIAN (MODAL)")
-                    eg = st.text_input("Game", value=row_edit['nama_game'], key=f"eg_{eid}")
-                    ee = st.text_input("Email Akun", value=row_edit.get('email_akun', ''), key=f"ee_{eid}")
-                    epa = st.text_input("Password Akun", value=row_edit.get('password_akun', ''), key=f"epa_{eid}")
-                    es = st.text_input("Nama Penjual", value=row_edit.get('nama_penjual', ''), key=f"es_{eid}")
-                    ews = st.text_input("WA Penjual", value=row_edit.get('wa_penjual', ''), key=f"ews_{eid}")
-                    efs = st.text_input("FB Penjual", value=row_edit.get('fb_penjual', ''), key=f"efs_{eid}")
-                    ehb = st.number_input("Harga Beli", value=float(row_edit.get('harga_beli', 0)), key=f"ehb_{eid}")
-                
-                with c2:
-                    st.caption("💰 PENJUALAN (PROFIT)")
-                    eb = st.text_input("Nama Pembeli", value=row_edit.get('nama_pembeli', ''), key=f"eb_{eid}")
-                    ewb = st.text_input("WA Pembeli", value=row_edit.get('no_wa', ''), key=f"ewb_{eid}")
-                    efb = st.text_input("FB Pembeli", value=row_edit.get('akun_fb', ''), key=f"efb_{eid}")
-                    ehj = st.number_input("Harga Jual", value=float(row_edit.get('harga_jual', 0)), key=f"ehj_{eid}")
-                    ss_edit = st.file_uploader("🖼️ Update Screenshot Baru", type=['png', 'jpg', 'jpeg'], key=f"ss_{eid}")
+                    with c2:
+                        st.caption("💰 PENJUALAN (PROFIT)")
+                        # Menambahkan Tanggal Jual
+                        t_jual = st.date_input("Tanggal Jual", value=pd.to_datetime(row_edit['tanggal_jual']).date() if row_edit['tanggal_jual'] != "-" else None, key=f"tj_{eid}")
+                        eb = st.text_input("Nama Pembeli", value=row_edit.get('nama_pembeli', ''), key=f"eb_{eid}")
+                        ewb = st.text_input("WA Pembeli", value=row_edit.get('no_wa', ''), key=f"ewb_{eid}")
+                        efb = st.text_input("FB Pembeli", value=row_edit.get('akun_fb', ''), key=f"efb_{eid}")
+                        ehj = st.number_input("Harga Jual", value=float(row_edit.get('harga_jual', 0)), key=f"ehj_{eid}")
+                        ss_edit = st.file_uploader("🖼️ Update Screenshot Baru", type=['png', 'jpg', 'jpeg'], key=f"ss_{eid}")
 
-                if st.form_submit_button("💾 Update Seluruh Data", use_container_width=True, key=f"btn_{eid}"):
-                    # Pastikan logika upd dan update database di sini tetap menjorok ke dalam (tab)
-                    upd = {
-                        "nama_game": eg, "email_akun": ee, "password_akun": epa,
-                        "nama_penjual": es, "wa_penjual": ews, "fb_penjual": efs,
-                        "harga_beli": ehb, "nama_pembeli": eb, "no_wa": ewb, 
-                        "akun_fb": efb, "harga_jual": ehj
-                    }
-                    if ss_edit:
-                        fname = f"edit_{eid}_{ss_edit.name}".replace(" ","_")
-                        supabase.storage.from_("screenshots").upload(fname, ss_edit.getvalue())
-                        upd["screenshot"] = supabase.storage.from_("screenshots").get_public_url(fname)
+                    if st.form_submit_button("💾 Update Seluruh Data", use_container_width=True, key=f"btn_{eid}"):
+                        upd = {
+                            "tanggal_beli": str(t_beli),
+                            "tanggal_jual": str(t_jual) if t_jual else "-",
+                            "nama_game": eg, "email_akun": ee, "password_akun": epa,
+                            "nama_penjual": es, "wa_penjual": ews, "fb_penjual": efs,
+                            "harga_beli": ehb, "nama_pembeli": eb, "no_wa": ewb, 
+                            "akun_fb": efb, "harga_jual": ehj
+                        }
+                        if ss_edit:
+                            fname = f"edit_{eid}_{ss_edit.name}".replace(" ","_")
+                            supabase.storage.from_("screenshots").upload(fname, ss_edit.getvalue())
+                            upd["screenshot"] = supabase.storage.from_("screenshots").get_public_url(fname)
                     
-                    supabase.table("pendataan_akun").update(upd).eq("id", eid).execute()
-                    st.success("Data berhasil diupdate!")
-                    st.rerun()	
+                        supabase.table("pendataan_akun").update(upd).eq("id", eid).execute()
+                        st.success("Data berhasil diupdate!")
+                        st.rerun()	
             
             with tab_hapus:
                 did = st.number_input("Masukkan ID yang akan dihapus:", min_value=0, step=1, value=int(df['id'].iloc[0]))
