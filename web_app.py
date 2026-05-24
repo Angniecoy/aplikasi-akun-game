@@ -126,7 +126,7 @@ if check_password():
             kolom_tersedia = [kol for kol in urutan_kolom if kol in df.columns]
             df = df[kolom_tersedia]
         else:
-            df = pd.DataFrame(columns=["id", "tanggal_beli", "tanggal_jual", "status_stok", "nama_game", "nama_penjual", "email_akun", "password_akun", "wa_penjual", "fb_penjual", "harga_beli", "nama_pembeli", "no_wa", "akun_fb", "harga_jual", "screenshot"])
+            df = pd.DataFrame(columns=["id", "tanggal_beli", "tanggal_jual", "status_stok", "nama_game", "nama_penjual", "email_akun", "password_akun", "wa_penjual", "fb_penjual", "harga_beli", "nama_pembeli", "no_wa", "akun_fb", "harga_jual", "keterangan", "screenshot"])
     except Exception as e:
         st.error(f"Gagal memuat data: {e}")
         st.stop()
