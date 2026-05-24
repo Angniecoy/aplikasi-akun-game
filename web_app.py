@@ -387,7 +387,7 @@ if check_password():
                     
                     supabase.table("pendataan_akun").update(upd).eq("id", eid).execute()
                     st.success("Data berhasil diupdate!")
-                    st.rerun()
+                    st.rerun()	
             
             with tab_hapus:
                 did = st.number_input("Masukkan ID yang akan dihapus:", min_value=0, step=1, value=int(df['id'].iloc[0]))
