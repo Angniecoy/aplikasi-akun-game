@@ -356,15 +356,21 @@ if check_password():
                     
                     with e_col1:
                         st.caption("🛍️ PEMBELIAN (MODAL)")
-                        # ... (biarkan bagian input text/date tetap sama)
-                        eg = st.text_input("Game", value=row_edit['nama_game'])
-                        ehb = st.number_input("Harga Beli", value=float(row_edit['harga_beli']))
+                    eg = st.text_input("Game", value=row_edit['nama_game'], key=f"eg_{eid}")
+                    ee = st.text_input("Email Akun", value=row_edit.get('email_akun', ''), key=f"ee_{eid}")
+                    epa = st.text_input("Password Akun", value=row_edit.get('password_akun', ''), key=f"epa_{eid}")
+                    es = st.text_input("Nama Penjual", value=row_edit.get('nama_penjual', ''), key=f"es_{eid}")
+                    ews = st.text_input("WA Penjual", value=row_edit.get('wa_penjual', ''), key=f"ews_{eid}")
+                    efs = st.text_input("FB Penjual", value=row_edit.get('fb_penjual', ''), key=f"efs_{eid}")
+                    ehb = st.number_input("Harga Beli", value=float(row_edit.get('harga_beli', 0)), key=f"ehb_{eid}")
                         
                     with e_col2:
                         st.caption("💰 PENJUALAN (PROFIT)")
-                        ehj = st.number_input("💵 Harga Jual", value=float(row_edit['harga_jual']))
-                        # --- INI TAMBAHAN KOLOM EDIT SCREENSHOT ---
-                        ss_edit = st.file_uploader("🖼️ Update Screenshot Baru", type=['png', 'jpg', 'jpeg'])
+                        eb = st.text_input("Nama Pembeli", value=row_edit.get('nama_pembeli', ''), key=f"eb_{eid}")
+                    ewb = st.text_input("WA Pembeli", value=row_edit.get('no_wa', ''), key=f"ewb_{eid}")
+                    efb = st.text_input("FB Pembeli", value=row_edit.get('akun_fb', ''), key=f"efb_{eid}")
+                    ehj = st.number_input("Harga Jual", value=float(row_edit.get('harga_jual', 0)), key=f"ehj_{eid}")
+                    ss_edit = st.file_uploader("🖼️ Update Screenshot Baru", type=['png', 'jpg', 'jpeg'], key=f"ss_{eid}")
                         
                     if st.form_submit_button("💾 Update Seluruh Data", use_container_width=True):
                         upd = {"nama_game": eg, "harga_beli": ehb, "harga_jual": ehj}
