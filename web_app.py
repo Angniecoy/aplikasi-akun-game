@@ -243,6 +243,7 @@ if check_password():
                 with col_wab: wa_buyer = st.text_input("WA Pembeli")
                 with col_fbb: fb_buyer = st.text_input("FB Pembeli")
                 h_jual = st.number_input("Harga Jual (Rp)", min_value=0)
+                keterangan = st.text_area("Keterangan Tambahan")
 
             st.markdown("<br>", unsafe_allow_html=True)
             if st.form_submit_button("💾 Simpan Data ke Cloud Database", use_container_width=True):
@@ -257,7 +258,9 @@ if check_password():
                     "tanggal_beli": str(t_beli), "nama_game": game, "email_akun": email, "password_akun": pass_akun, 
                     "nama_penjual": seller, "wa_penjual": wa_seller, "fb_penjual": fb_seller,
                     "harga_beli": float(h_beli), "tanggal_jual": str(t_jual) if t_jual else "-",
-                    "nama_pembeli": buyer, "no_wa": wa_buyer, "akun_fb": fb_buyer, "harga_jual": float(h_jual), "screenshot": url
+                    "nama_pembeli": buyer, "no_wa": wa_buyer, "akun_fb": fb_buyer, "harga_jual": float(h_jual), 
+                    "keterangan": keterangan, # <-- Tambahkan ini
+                    "screenshot": url
                 }
                 supabase.table("pendataan_akun").insert(payload).execute()
                 st.success("✅ Transaksi Berhasil Disimpan!")
