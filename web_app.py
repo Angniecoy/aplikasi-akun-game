@@ -115,6 +115,8 @@ if check_password():
         response = supabase.table("pendataan_akun").select("*").order('id', desc=True).execute()
         if response.data:
             df = pd.DataFrame(response.data)
+            if 'keterangan' not in df.columns:
+                df['keterangan'] = ""
             df['status_stok'] = pd.to_numeric(df['harga_jual'], errors='coerce').fillna(0).apply(
                 lambda x: "🟢 Tersedia" if x == 0 else "🔴 Terjual"
             )
@@ -285,7 +287,7 @@ if check_password():
             df_display = df_display[mask]
         
         st.dataframe(
-            df_display,
+            df_display = df.copy()
             use_container_width=True, hide_index=True, 
             column_config={
                 "id": st.column_config.NumberColumn("ID", format="%d"),
@@ -293,7 +295,7 @@ if check_password():
                 "harga_beli": st.column_config.NumberColumn("Harga Beli", format="Rp %d"),
                 "harga_jual": st.column_config.NumberColumn("Harga Jual", format="Rp %d"),
                 "screenshot": st.column_config.LinkColumn("Screenshot", display_text="Lihat"),
-                "keterangan": st.column_config.TextColumn("Keterangan", width="medium"),
+                "keterangan": st.column_config.TextColumn("Keterangan", width="medium"), # Kolom ini sekarang pasti muncul
                 "profit_per_akun": None 
             }
         )
