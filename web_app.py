@@ -356,6 +356,35 @@ if check_password():
                     
                     with e_col1:
                         st.caption("🛍️ PEMBELIAN (MODAL)")
+                        # Tambahkan key unik berdasarkan eid
+                        eg = st.text_input("Game", value=row_edit['nama_game'], key=f"eg_{eid}")
+                        ee = st.text_input("Email", value=row_edit.get('email_akun', ''), key=f"ee_{eid}")
+                        epa = st.text_input("Password", value=row_edit.get('password_akun', ''), key=f"epa_{eid}")
+                        es = st.text_input("Seller", value=row_edit.get('nama_penjual', ''), key=f"es_{eid}")
+                        ehb = st.number_input("Harga Beli", value=float(row_edit.get('harga_beli', 0)), key=f"ehb_{eid}")
+                        
+                    with e_col2:
+                        st.caption("💰 PENJUALAN (PROFIT)")
+                        eb = st.text_input("Buyer", value=row_edit.get('nama_pembeli', ''), key=f"eb_{eid}")
+                        ehj = st.number_input("Harga Jual", value=float(row_edit.get('harga_jual', 0)), key=f"ehj_{eid}")
+                        ss_edit = st.file_uploader("🖼️ Update Screenshot Baru", type=['png', 'jpg', 'jpeg'], key=f"ss_{eid}")
+
+                    if st.form_submit_button("💾 Update Seluruh Data", use_container_width=True):
+                        upd = {
+                            "nama_game": eg, "email_akun": ee, "password_akun": epa,
+                            "nama_penjual": es, "harga_beli": ehb,
+                            "nama_pembeli": eb, "harga_jual": ehj
+                        }
+                        if ss_edit:
+                            fname = f"edit_{eid}_{ss_edit.name}".replace(" ","_")
+                            supabase.storage.from_("screenshots").upload(fname, ss_edit.getvalue())
+                            upd["screenshot"] = supabase.storage.from_("screenshots").get_public_url(fname)
+                        
+                        supabase.table("pendataan_akun").update(upd).eq("id", eid).execute()
+                        st.success("Data berhasil diupdate!"); st.rerun()
+                    
+                    with e_col1:
+                        st.caption("🛍️ PEMBELIAN (MODAL)")
                         eg = st.text_input("Game", value=row_edit['nama_game'])
                         ee = st.text_input("Email", value=row_edit.get('email_akun', ''))
                         epa = st.text_input("Password", value=row_edit.get('password_akun', ''))
