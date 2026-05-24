@@ -287,7 +287,7 @@ if check_password():
             df_display = df_display[mask]
         
         st.dataframe(
-            df_display = df.copy()
+            df_display,
             use_container_width=True, hide_index=True, 
             column_config={
                 "id": st.column_config.NumberColumn("ID", format="%d"),
