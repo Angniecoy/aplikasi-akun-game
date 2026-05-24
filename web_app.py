@@ -373,20 +373,27 @@ if check_password():
                     ss_edit = st.file_uploader("🖼️ Update Screenshot Baru", type=['png', 'jpg', 'jpeg'], key=f"ss_{eid}")
                         
                     if st.form_submit_button("💾 Update Seluruh Data", use_container_width=True, key=f"btn_{eid}"):
-                    upd = {
-                        "nama_game": eg, "email_akun": ee, "password_akun": epa,
-                        "nama_penjual": es, "wa_penjual": ews, "fb_penjual": efs,
-                        "harga_beli": ehb, "nama_pembeli": eb, "no_wa": ewb, 
-                        "akun_fb": efb, "harga_jual": ehj
+                   upd = {
+                        "nama_game": eg, 
+                        "email_akun": ee, 
+                        "password_akun": epa,
+                        "nama_penjual": es, 
+                        "wa_penjual": ews, 
+                        "fb_penjual": efs,
+                        "harga_beli": ehb, 
+                        "nama_pembeli": eb, 
+                        "no_wa": ewb, 
+                        "akun_fb": efb, 
+                        "harga_jual": ehj
                     }
                     if ss_edit:
                         fname = f"edit_{eid}_{ss_edit.name}".replace(" ","_")
                         supabase.storage.from_("screenshots").upload(fname, ss_edit.getvalue())
                         upd["screenshot"] = supabase.storage.from_("screenshots").get_public_url(fname)
-                        
-                        supabase.table("pendataan_akun").update(upd).eq("id", eid).execute()
-                        st.success("Rincian data berhasil diupdate!")
-                        st.rerun()
+                    
+                    supabase.table("pendataan_akun").update(upd).eq("id", eid).execute()
+                    st.success("Rincian data berhasil diupdate!")
+                    st.rerun()
             
             with tab_hapus:
                 did = st.number_input("Masukkan ID yang akan dihapus:", min_value=0, step=1, value=int(df['id'].iloc[0]))
