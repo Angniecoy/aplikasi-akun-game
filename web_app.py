@@ -292,8 +292,8 @@ if check_password():
                 "status_stok": st.column_config.TextColumn("Status Stok"),
                 "harga_beli": st.column_config.NumberColumn("Harga Beli", format="Rp %d"),
                 "harga_jual": st.column_config.NumberColumn("Harga Jual", format="Rp %d"),
-                "keterangan": st.column_config.TextColumn("Keterangan"),
-                "screenshot": st.column_config.LinkColumn("Screenshot", display_text="Lihat Gambar"),
+                "screenshot": st.column_config.LinkColumn("Screenshot", display_text="Lihat"),
+                "keterangan": st.column_config.TextColumn("Keterangan", width="medium")
                 "profit_per_akun": None 
             }
         )
