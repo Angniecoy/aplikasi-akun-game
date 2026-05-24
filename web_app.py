@@ -160,38 +160,20 @@ if check_password():
             row_edit = df[df['id'] == eid].iloc[0]
             
             with st.form(f"edit_form_{eid}"):
-                st.info(f"Silakan perbarui rincian data untuk ID: {eid}")
                 c1, c2 = st.columns(2)
-                
                 with c1:
-                    st.caption("🛍️ PEMBELIAN (MODAL)")
                     eg = st.text_input("Game", value=row_edit['nama_game'], key=f"eg_{eid}")
-                    ee = st.text_input("Email Akun", value=row_edit.get('email_akun', ''), key=f"ee_{eid}")
-                    epa = st.text_input("Password Akun", value=row_edit.get('password_akun', ''), key=f"epa_{eid}")
-                    es = st.text_input("Nama Penjual", value=row_edit.get('nama_penjual', ''), key=f"es_{eid}")
-                    ews = st.text_input("WA Penjual", value=row_edit.get('wa_penjual', ''), key=f"ews_{eid}")
-                    efs = st.text_input("FB Penjual", value=row_edit.get('fb_penjual', ''), key=f"efs_{eid}")
-                    ehb = st.number_input("Harga Beli", value=float(row_edit.get('harga_beli', 0)), key=f"ehb_{eid}")
-                
+                    ehb = st.number_input("Harga Beli", value=float(row_edit['harga_beli']), key=f"ehb_{eid}")
                 with c2:
-                    st.caption("💰 PENJUALAN (PROFIT)")
-                    eb = st.text_input("Nama Pembeli", value=row_edit.get('nama_pembeli', ''), key=f"eb_{eid}")
-                    ewb = st.text_input("WA Pembeli", value=row_edit.get('no_wa', ''), key=f"ewb_{eid}")
-                    efb = st.text_input("FB Pembeli", value=row_edit.get('akun_fb', ''), key=f"efb_{eid}")
-                    ehj = st.number_input("Harga Jual", value=float(row_edit.get('harga_jual', 0)), key=f"ehj_{eid}")
+                    ehj = st.number_input("Harga Jual", value=float(row_edit['harga_jual']), key=f"ehj_{eid}")
+                    # --- FITUR EDIT SCREENSHOT ---
                     ss_edit = st.file_uploader("🖼️ Update Screenshot Baru", type=['png', 'jpg', 'jpeg'], key=f"ss_{eid}")
-
+                
                 if st.form_submit_button("💾 Update Seluruh Data", use_container_width=True, key=f"btn_{eid}"):
-                    upd = {
-                        "nama_game": eg, "email_akun": ee, "password_akun": epa,
-                        "nama_penjual": es, "wa_penjual": ews, "fb_penjual": efs,
-                        "harga_beli": ehb, "nama_pembeli": eb, "no_wa": ewb, 
-                        "akun_fb": efb, "harga_jual": ehj
-                    }
+                    upd = {"nama_game": eg, "harga_beli": ehb, "harga_jual": ehj}
                     if ss_edit:
                         fname = f"edit_{eid}_{ss_edit.name}".replace(" ","_")
                         supabase.storage.from_("screenshots").upload(fname, ss_edit.getvalue())
                         upd["screenshot"] = supabase.storage.from_("screenshots").get_public_url(fname)
-                    
                     supabase.table("pendataan_akun").update(upd).eq("id", eid).execute()
                     st.success("Data berhasil diupdate!"); st.rerun()
