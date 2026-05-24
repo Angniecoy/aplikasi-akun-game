@@ -265,6 +265,25 @@ if check_password():
     # HALAMAN 3: DATABASE
     # ==========================================
     elif menu_pilihan == "🗄️ Database & Manajemen":
+        # --- FUNGSI EDIT AMAN (Ditempel di luar blok elif utama) ---
+def render_edit_form(eid, row):
+    with st.form(f"form_{eid}"):
+        col1, col2 = st.columns(2)
+        with col1:
+            eg = st.text_input("Game", value=row['nama_game'])
+            ee = st.text_input("Email", value=row.get('email_akun', ''))
+        with col2:
+            ehj = st.number_input("Harga Jual", value=float(row['harga_jual']))
+            ss_edit = st.file_uploader("Update Screenshot", type=['png','jpg','jpeg'])
+        
+        if st.form_submit_button("Update Seluruh Data"):
+            upd = {"nama_game": eg, "email_akun": ee, "harga_jual": ehj}
+            if ss_edit:
+                fname = f"edit_{eid}_{ss_edit.name}".replace(" ","_")
+                supabase.storage.from_("screenshots").upload(fname, ss_edit.getvalue())
+                upd["screenshot"] = supabase.storage.from_("screenshots").get_public_url(fname)
+            supabase.table("pendataan_akun").update(upd).eq("id", eid).execute()
+            st.rerun()
         st.markdown("### 🗄️ Pusat Database")
         
         col_search, col_filter, col_export = st.columns([2, 1, 1])
