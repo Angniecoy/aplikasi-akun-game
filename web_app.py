@@ -121,7 +121,7 @@ if check_password():
             urutan_kolom = [
                 "id", "tanggal_beli", "tanggal_jual", "status_stok", "nama_game", "nama_penjual", 
                 "email_akun", "password_akun", "wa_penjual", "fb_penjual", 
-                "harga_beli", "nama_pembeli", "no_wa", "akun_fb", "harga_jual", "screenshot"
+                "harga_beli", "nama_pembeli", "no_wa", "akun_fb", "harga_jual", "keterangan", "screenshot"
             ]
             kolom_tersedia = [kol for kol in urutan_kolom if kol in df.columns]
             df = df[kolom_tersedia]
@@ -292,6 +292,7 @@ if check_password():
                 "status_stok": st.column_config.TextColumn("Status Stok"),
                 "harga_beli": st.column_config.NumberColumn("Harga Beli", format="Rp %d"),
                 "harga_jual": st.column_config.NumberColumn("Harga Jual", format="Rp %d"),
+                "keterangan": st.column_config.TextColumn("Keterangan"),
                 "screenshot": st.column_config.LinkColumn("Screenshot", display_text="Lihat Gambar"),
                 "profit_per_akun": None 
             }
@@ -374,6 +375,7 @@ if check_password():
                         ewb = st.text_input("WA Pembeli", value=row_edit.get('no_wa', ''), key=f"ewb_{eid}")
                         efb = st.text_input("FB Pembeli", value=row_edit.get('akun_fb', ''), key=f"efb_{eid}")
                         ehj = st.number_input("Harga Jual", value=float(row_edit.get('harga_jual', 0)), key=f"ehj_{eid}")
+                        eketerangan = st.text_area("Keterangan", value=row_edit.get('keterangan', ''), key=f"ket_{eid}")
                         ss_edit = st.file_uploader("🖼️ Update Screenshot Baru", type=['png', 'jpg', 'jpeg'], key=f"ss_{eid}")
 
                     if st.form_submit_button("💾 Update Seluruh Data", use_container_width=True, key=f"btn_{eid}"):
@@ -383,7 +385,7 @@ if check_password():
                             "nama_game": eg, "email_akun": ee, "password_akun": epa,
                             "nama_penjual": es, "wa_penjual": ews, "fb_penjual": efs,
                             "harga_beli": ehb, "nama_pembeli": eb, "no_wa": ewb, 
-                            "akun_fb": efb, "harga_jual": ehj
+                            "akun_fb": efb, "harga_jual": ehj, "keterangan": eketerangan
                         }
                         if ss_edit:
                             fname = f"edit_{eid}_{ss_edit.name}".replace(" ","_")
