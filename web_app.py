@@ -383,9 +383,10 @@ if check_password():
                         fname = f"edit_{eid}_{ss_edit.name}".replace(" ","_")
                         supabase.storage.from_("screenshots").upload(fname, ss_edit.getvalue())
                         upd["screenshot"] = supabase.storage.from_("screenshots").get_public_url(fname)
-                    
-                    supabase.table("pendataan_akun").update(upd).eq("id", eid).execute()
-                    st.success("Data berhasil diupdate!"); st.rerun()
+                        
+                        supabase.table("pendataan_akun").update(upd).eq("id", eid).execute()
+                        st.success("Rincian data berhasil diupdate!")
+                        st.rerun()
             
             with tab_hapus:
                 did = st.number_input("Masukkan ID yang akan dihapus:", min_value=0, step=1, value=int(df['id'].iloc[0]))
