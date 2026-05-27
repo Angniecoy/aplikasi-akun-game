@@ -156,7 +156,7 @@ if check_password():
     # HALAMAN 1: DASHBOARD
     # ==========================================
     if menu_pilihan == "📊 Dashboard Analitik":
-        st.markdown("### 📊 Excecutive Summary")
+        st.markdown("### 📊 Executive Summary")
         if not df.empty:
             df['harga_beli'] = pd.to_numeric(df['harga_beli'], errors='coerce').fillna(0)
             df['harga_jual'] = pd.to_numeric(df['harga_jual'], errors='coerce').fillna(0)
