@@ -111,105 +111,40 @@ def check_password():
 # --- 5. APLIKASI UTAMA ---
 if check_password():
     
-    try:
-        response = supabase.table("pendataan_akun").select("*").order('id', desc=True).execute()
-        if response.data:
-            df = pd.DataFrame(response.data)
-            df['status_stok'] = pd.to_numeric(df['harga_jual'], errors='coerce').fillna(0).apply(
-                lambda x: "🟢 Tersedia" if x == 0 else "🔴 Terjual"
-            )
-            urutan_kolom = [
-                "id", "tanggal_beli", "tanggal_jual", "status_stok", "nama_game", "nama_penjual", 
-                "email_akun", "password_akun", "wa_penjual", "fb_penjual", 
-                "harga_beli", "nama_pembeli", "no_wa", "akun_fb", "harga_jual", "screenshot"
-            ]
-            kolom_tersedia = [kol for kol in urutan_kolom if kol in df.columns]
-            df = df[kolom_tersedia]
-        else:
-            df = pd.DataFrame(columns=["id", "tanggal_beli", "tanggal_jual", "status_stok", "nama_game", "nama_penjual", "email_akun", "password_akun", "wa_penjual", "fb_penjual", "harga_beli", "nama_pembeli", "no_wa", "akun_fb", "harga_jual", "screenshot"])
-    except Exception as e:
-        st.error(f"Gagal memuat data: {e}")
-        st.stop()
-
-    # --- MENU SIDEBAR ---
-    st.sidebar.markdown("### ⚙️ Sistem Navigasi")
-    menu_pilihan = st.sidebar.radio(
-        "Menu Utama:",
-        ["📊 Dashboard Analitik", "📝 Input Transaksi", "🗄️ Database & Manajemen"],
-        label_visibility="collapsed"
-    )
+    # 1. AMBIL & PROSES DATA SEKALI SAJA
+    response = supabase.table("pendataan_akun").select("*").order('id', desc=True).execute()
+    df = pd.DataFrame(response.data) if response.data else pd.DataFrame()
     
-    st.sidebar.markdown("<br><br><br>", unsafe_allow_html=True)
-    st.sidebar.markdown("---")
-    st.sidebar.caption("Sistem MFF Pro v2.5")
-    if st.sidebar.button("🚪 Logout Sistem", use_container_width=True):
-        st.session_state.clear()
-        st.rerun()
+    if not df.empty:
+        df['tgl_jual_dt'] = pd.to_datetime(df['tanggal_jual'], errors='coerce')
+        df['bulan_tahun'] = df['tgl_jual_dt'].dt.to_period('M').astype(str)
+        df['harga_beli'] = pd.to_numeric(df['harga_beli'], errors='coerce').fillna(0)
+        df['harga_jual'] = pd.to_numeric(df['harga_jual'], errors='coerce').fillna(0)
+        df['profit_per_akun'] = df['harga_jual'] - df['harga_beli']
 
-    st.markdown("<h1 class='glowing-title'>☁️ MFF Database Manajemen Buy & Sell</h1>", unsafe_allow_html=True)
-    st.caption("Akses Aman • Analitik Real-time • Data Sinkronisasi Cloud")
-    st.markdown("<br>", unsafe_allow_html=True)
+    # 2. SIDEBAR FILTER
+    st.sidebar.markdown("### 📅 Filter Waktu")
+    daftar_bulan = sorted(df['bulan_tahun'].dropna().unique(), reverse=True) if not df.empty else []
+    pilih_bulan = st.sidebar.selectbox("Pilih Bulan:", ["Semua Bulan"] + daftar_bulan)
+    
+    # FILTER UTAMA: df_filter inilah yang akan dipakai di Dashboard
+    df_filter = df[df['bulan_tahun'] == pilih_bulan].copy() if pilih_bulan != "Semua Bulan" else df.copy()
 
-    # ==========================================
-    # HALAMAN 1: DASHBOARD
-    # ==========================================
+    # 3. DASHBOARD (Hanya SATU BLOK)
     if menu_pilihan == "📊 Dashboard Analitik":
-        st.markdown("### 📊 Ringkasan Eksekutif")
-        if not df.empty:
-            df['harga_beli'] = pd.to_numeric(df['harga_beli'], errors='coerce').fillna(0)
-            df['harga_jual'] = pd.to_numeric(df['harga_jual'], errors='coerce').fillna(0)
-            df['profit_per_akun'] = df['harga_jual'] - df['harga_beli'] 
-
-            stok = len(df[df['harga_jual'] == 0])
-            terjual = len(df[df['harga_jual'] > 0])
-            modal = df['harga_beli'].sum()
-            nilai_stok = df[df['harga_jual'] == 0]['harga_beli'].sum()
-            total_profit = df[df['harga_jual'] > 0]['profit_per_akun'].sum()
-
-            tanggal_hari_ini = datetime.today().strftime('%Y-%m-%d')
-            df_terjual = df[(df['harga_jual'] > 0) & (df['tanggal_jual'] != "-") & (df['tanggal_jual'].notna())].copy()
-            profit_hari_ini = df_terjual[df_terjual['tanggal_jual'] == tanggal_hari_ini]['profit_per_akun'].sum()
-
-            st.markdown("#### 🚨 Notifikasi & Rekomendasi Tindakan")
-            df_stok_aktif = df[df['harga_jual'] == 0].copy()
-            akun_lama_count = 0
-            
-            if not df_stok_aktif.empty:
-                try:
-                    df_stok_aktif['tgl_beli_dt'] = pd.to_datetime(df_stok_aktif['tanggal_beli'], format='%Y-%m-%d', errors='coerce')
-                    hari_ini_dt = pd.to_datetime(datetime.today().date())
-                    df_stok_aktif['umur_stok'] = (hari_ini_dt - df_stok_aktif['tgl_beli_dt']).dt.days
-                    akun_lama = df_stok_aktif[df_stok_aktif['umur_stok'] > 7]
-                    akun_lama_count = len(akun_lama)
-                    
-                    if akun_lama_count > 0:
-                        st.warning(f"⚠️ **Perhatian:** Ada **{akun_lama_count} akun** yang sudah mengendap lebih dari 7 hari belum terjual. Direkomendasikan untuk melakukan promosi ulang atau penyesuaian harga di menu Manajemen.")
-                    else:
-                        st.success("✅ Semua stok aktif Anda masih dalam siklus perputaran yang sehat (kurang dari 7 hari). Bagus!")
-                except:
-                    pass
-
-            st.markdown("<br>", unsafe_allow_html=True)
-
-            c1, c2, c3 = st.columns(3)
-            c1.metric("📦 In Stock", f"{stok} Akun")
-            c2.metric("✅ Total Terjual", f"{terjual} Akun")
-            c3.metric("💳 Total Modal Muter", f"Rp {modal:,.0f}")
-            st.markdown("<br>", unsafe_allow_html=True)
-            c4, c5, c6 = st.columns(3)
-            c4.metric("💎 Nilai Aset Mandek", f"Rp {nilai_stok:,.0f}")
-            c5.metric("💰 Total Profit Bersih", f"Rp {total_profit:,.0f}")
-            c6.metric("🚀 Profit Hari Ini", f"Rp {profit_hari_ini:,.0f}", delta="Cuan Masuk!" if profit_hari_ini > 0 else None)
-
-            st.markdown("---")
-            st.markdown("### 📈 Grafik Pertumbuhan Profit Harian")
-            if not df_terjual.empty:
-                profit_harian = df_terjual.groupby('tanggal_jual')['profit_per_akun'].sum()
-                st.area_chart(profit_harian, use_container_width=True, color="#00C9FF")
-            else:
-                st.info("Belum ada data penjualan untuk ditampilkan di grafik.")
+        st.markdown(f"<h1 class='glowing-title'>☁️ MFF Dashboard ({pilih_bulan})</h1>", unsafe_allow_html=True)
+        
+        # Metrik berdasarkan df_filter (Reset otomatis)
+        c1, c2, c3 = st.columns(3)
+        c1.metric("📦 In Stock", f"{len(df_filter[df_filter['harga_jual'] == 0])} Akun")
+        c2.metric("✅ Terjual", f"{len(df_filter[df_filter['harga_jual'] > 0])} Akun")
+        c3.metric("💰 Profit", f"Rp {df_filter[df_filter['harga_jual'] > 0]['profit_per_akun'].sum():,.0f}")
+        
+        st.markdown("### 📈 Grafik Performa")
+        if not df_filter.empty:
+            st.area_chart(df_filter.groupby('tanggal_jual')['profit_per_akun'].sum())
         else:
-            st.info("Sistem belum memiliki data transaksi untuk dianalisis.")
+            st.info("Belum ada data untuk bulan ini.")
 
     # ==========================================
     # HALAMAN 2: INPUT
