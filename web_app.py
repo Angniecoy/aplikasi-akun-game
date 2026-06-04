@@ -173,6 +173,29 @@ if check_password():
     # ==========================================
     # HALAMAN 1: DASHBOARD
     # ==========================================
+    # --- 1. PROSES FILTER BULAN GLOBAL (Pastikan ditaruh di sini) ---
+    df['tgl_jual_dt'] = pd.to_datetime(df['tanggal_jual'], errors='coerce')
+    df['bulan_tahun'] = df['tgl_jual_dt'].dt.to_period('M').astype(str)
+    
+    daftar_bulan = sorted(df['bulan_tahun'].dropna().unique(), reverse=True)
+    daftar_bulan.insert(0, "Semua Bulan")
+
+    st.sidebar.markdown("### 📅 Filter Waktu")
+    pilih_bulan = st.sidebar.selectbox("Pilih Bulan Transaksi:", daftar_bulan)
+
+    # Variabel 'df' sekarang berubah menjadi 'df_filter' untuk dipakai di bawah
+    if pilih_bulan != "Semua Bulan":
+        df_filter = df[df['bulan_tahun'] == pilih_bulan].copy()
+    else:
+        df_filter = df.copy()
+
+    # --- 2. PENTING: GANTI 'df' MENJADI 'df_filter' DI BAWAH ---
+    # Sekarang, cari semua baris di bawah yang menggunakan 'df' (seperti di Dashboard)
+    # dan ganti menjadi 'df_filter'.
+    
+    # Contoh:
+    # if not df_filter.empty:
+    #     ...
     if menu_pilihan == "📊 Dashboard Analitik":
         st.markdown("### 📊 Executive Summary")
         if not df.empty:
