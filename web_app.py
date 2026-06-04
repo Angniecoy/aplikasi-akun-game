@@ -127,66 +127,68 @@ def check_password():
     return True
 
 # --- 5. APLIKASI UTAMA ---
+# --- 5. APLIKASI UTAMA ---
 if check_password():
     
-    try:
-        response = supabase.table("pendataan_akun").select("*").order('id', desc=True).execute()
-        if response.data:
-            df = pd.DataFrame(response.data)
-            if 'keterangan' not in df.columns:
-                df['keterangan'] = ""
-            df['status_stok'] = pd.to_numeric(df['harga_jual'], errors='coerce').fillna(0).apply(
-                lambda x: "🟢 Tersedia" if x == 0 else "🔴 Terjual"
-            )
-            urutan_kolom = [
-                "id", "tanggal_beli", "tanggal_jual", "status_stok", "nama_game", "nama_penjual", 
-                "email_akun", "password_akun", "wa_penjual", "fb_penjual", 
-                "harga_beli", "nama_pembeli", "no_wa", "akun_fb", "harga_jual", "keterangan", "screenshot"
-            ]
-            kolom_tersedia = [kol for kol in urutan_kolom if kol in df.columns]
-            df = df[kolom_tersedia]
-        else:
-            df = pd.DataFrame(columns=["id", "tanggal_beli", "tanggal_jual", "status_stok", "nama_game", "nama_penjual", "email_akun", "password_akun", "wa_penjual", "fb_penjual", "harga_beli", "nama_pembeli", "no_wa", "akun_fb", "harga_jual", "keterangan", "screenshot"])
-    except Exception as e:
-        st.error(f"Gagal memuat data: {e}")
-        st.stop()
-
-    # --- 1. PROSES FILTER BULAN GLOBAL ---
-    # Pastikan df sudah ada dari Supabase
-    df['tgl_jual_dt'] = pd.to_datetime(df['tanggal_jual'], errors='coerce')
-    df['bulan_tahun'] = df['tgl_jual_dt'].dt.to_period('M').astype(str)
+    # ... (kode pengambilan data Supabase Anda, biarkan tetap sama)
     
-    # Ambil daftar bulan unik
-    daftar_bulan = sorted(df['bulan_tahun'].dropna().unique(), reverse=True)
-    options = ["Semua Bulan"] + daftar_bulan
-    
-    st.sidebar.markdown("### 📅 Filter Waktu")
-    # Default index 1 akan memilih bulan terbaru (otomatis)
-    pilih_bulan = st.sidebar.selectbox("Pilih Bulan Transaksi:", options, index=1 if len(options) > 1 else 0)
-
-    # Filter DataFrame
-    if pilih_bulan != "Semua Bulan":
-        df_filter = df[df['bulan_tahun'] == pilih_bulan].copy()
-    else:
-        df_filter = df.copy()
-    # --- MENU SIDEBAR ---
+    # --- MENU SIDEBAR (Letakkan ini paling atas setelah load data) ---
     st.sidebar.markdown("### ⚙️ Sistem Navigasi")
     menu_pilihan = st.sidebar.radio(
         "Menu Utama:",
         ["📊 Dashboard Analitik", "📝 Input Transaksi", "🗄️ Database & Manajemen"],
         label_visibility="collapsed"
     )
-    
-    st.sidebar.markdown("<br><br><br>", unsafe_allow_html=True)
-    st.sidebar.markdown("---")
-    st.sidebar.caption("Sistem MFF Pro v2.5")
-    if st.sidebar.button("🚪 Logout Sistem", use_container_width=True):
-        st.session_state.clear()
-        st.rerun()
 
+    # --- 1. PROSES FILTER BULAN GLOBAL (Taruh di sini, bukan di dalam markdown!) ---
+    df['tgl_jual_dt'] = pd.to_datetime(df['tanggal_jual'], errors='coerce')
+    df['bulan_tahun'] = df['tgl_jual_dt'].dt.to_period('M').astype(str)
+    
+    daftar_bulan = sorted(df['bulan_tahun'].dropna().unique(), reverse=True)
+    options = ["Semua Bulan"] + daftar_bulan
+    
+    st.sidebar.markdown("### 📅 Filter Waktu")
+    # Default index 1 otomatis ke bulan terbaru
+    pilih_bulan = st.sidebar.selectbox("Pilih Bulan Transaksi:", options, index=1 if len(options) > 1 else 0)
+
+    if pilih_bulan != "Semua Bulan":
+        df_filter = df[df['bulan_tahun'] == pilih_bulan].copy()
+    else:
+        df_filter = df.copy()
+
+    # --- JUDUL HALAMAN ---
     st.markdown("<h1 class='glowing-title'>☁️ MFF Database Manajemen Buy & Sell</h1>", unsafe_allow_html=True)
     st.caption("Akses Aman • Analitik Real-time • Data Sinkronisasi Cloud")
     st.markdown("<br>", unsafe_allow_html=True)
+
+    # ==========================================
+    # HALAMAN 1: DASHBOARD
+    # ==========================================
+    if menu_pilihan == "📊 Dashboard Analitik":
+        st.markdown("### 📊 Executive Summary")
+        
+        # TAB UNTUK ANALITIK
+        tab_bulan, tab_all = st.tabs(["📅 Fokus Bulan Ini", "🌐 Laporan Keseluruhan"])
+        
+        with tab_bulan:
+            st.markdown(f"#### Data Khusus: **{pilih_bulan}**")
+            if not df_filter.empty:
+                # Perhitungan berdasarkan df_filter (Reset otomatis per bulan)
+                stok = len(df_filter[df_filter['harga_jual'] == 0])
+                terjual = len(df_filter[df_filter['harga_jual'] > 0])
+                profit = (pd.to_numeric(df_filter['harga_jual'], errors='coerce') - 
+                          pd.to_numeric(df_filter['harga_beli'], errors='coerce')).sum()
+                
+                c1, c2, c3 = st.columns(3)
+                c1.metric("📦 In Stock", f"{stok} Akun")
+                c2.metric("✅ Terjual", f"{terjual} Akun")
+                c3.metric("💰 Profit", f"Rp {profit:,.0f}")
+                
+                # REKAP BULANAN (Sesuai permintaan Anda untuk data tengah)
+                st.markdown("### 📅 Resume Rekap Transaksi")
+                st.bar_chart(df_filter.groupby('tanggal_jual')['harga_jual'].sum())
+            else:
+                st.info("Belum ada data untuk bulan yang dipilih.")
 
     # ==========================================
     # HALAMAN 1: DASHBOARD
