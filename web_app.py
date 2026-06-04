@@ -151,6 +151,24 @@ if check_password():
         st.error(f"Gagal memuat data: {e}")
         st.stop()
 
+    # --- 1. PROSES FILTER BULAN GLOBAL ---
+    # Pastikan df sudah ada dari Supabase
+    df['tgl_jual_dt'] = pd.to_datetime(df['tanggal_jual'], errors='coerce')
+    df['bulan_tahun'] = df['tgl_jual_dt'].dt.to_period('M').astype(str)
+    
+    # Ambil daftar bulan unik
+    daftar_bulan = sorted(df['bulan_tahun'].dropna().unique(), reverse=True)
+    options = ["Semua Bulan"] + daftar_bulan
+    
+    st.sidebar.markdown("### 📅 Filter Waktu")
+    # Default index 1 akan memilih bulan terbaru (otomatis)
+    pilih_bulan = st.sidebar.selectbox("Pilih Bulan Transaksi:", options, index=1 if len(options) > 1 else 0)
+
+    # Filter DataFrame
+    if pilih_bulan != "Semua Bulan":
+        df_filter = df[df['bulan_tahun'] == pilih_bulan].copy()
+    else:
+        df_filter = df.copy()
     # --- MENU SIDEBAR ---
     st.sidebar.markdown("### ⚙️ Sistem Navigasi")
     menu_pilihan = st.sidebar.radio(
