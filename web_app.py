@@ -3,126 +3,158 @@ from supabase import create_client, Client
 import pandas as pd
 from datetime import datetime
 
-# --- 1. PENGATURAN HALAMAN ---
+# --- 1. PENGATURAN HALAMAN UTAMA ---
 st.set_page_config(page_title="MFF Database", page_icon="🎮", layout="wide", initial_sidebar_state="expanded")
 
-# --- 2. DESAIN UI ---
-st.markdown("""
-    <style>
-    .glowing-title { font-size: 38px; font-weight: 800; background: linear-gradient(90deg, #00C9FF 0%, #92FE9D 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    </style>
-""", unsafe_allow_html=True)
+# --- 2. DESAIN UI KUSTOM TINGKAT LANJUT ---
+background_image_url = "https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?q=80&w=2071&auto=format&fit=crop"
 
-# --- 3. KONEKSI ---
+st.markdown(
+    f"""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap');
+
+    html, body, [class*="css"] {{
+        font-family: 'Poppins', sans-serif;
+    }}
+
+    .stApp {{
+        background-image: url("{background_image_url}");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }}
+    .stApp > header {{ background-color: transparent; }}
+    
+    .block-container {{
+        background-color: rgba(14, 17, 23, 0.85); 
+        padding: 2.5rem;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(8px);
+        margin-top: 2rem;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }}
+
+    [data-testid="stSidebar"] {{
+        background: linear-gradient(180deg, #0b0f19 0%, #161b22 100%) !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+        position: relative;
+        overflow: hidden;
+    }}
+    
+    [data-testid="stSidebar"]::before {{
+        content: ""; position: absolute; top: -100px; left: -100px; width: 300px; height: 300px;
+        background: radial-gradient(circle, rgba(0, 201, 255, 0.15) 0%, transparent 70%); border-radius: 50%; z-index: 0; pointer-events: none;
+    }}
+
+    [data-testid="stSidebar"]::after {{
+        content: ""; position: absolute; bottom: -100px; right: -100px; width: 250px; height: 250px;
+        background: radial-gradient(circle, rgba(146, 254, 157, 0.1) 0%, transparent 70%); border-radius: 50%; z-index: 0; pointer-events: none;
+    }}
+
+    .stRadio > div {{ gap: 12px; position: relative; z-index: 1; }}
+    .stRadio > div > label {{
+        background: rgba(255, 255, 255, 0.03) !important; border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        border-radius: 12px !important; padding: 12px 15px !important; transition: all 0.3s ease !important; cursor: pointer;
+    }}
+    .stRadio > div > label:hover {{
+        background: linear-gradient(90deg, rgba(0, 201, 255, 0.1) 0%, transparent 100%) !important;
+        border-color: rgba(0, 201, 255, 0.4) !important; transform: translateX(8px);
+    }}
+
+    .glowing-title {{
+        font-size: 38px; font-weight: 800; background: linear-gradient(90deg, #00C9FF 0%, #92FE9D 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0px; text-shadow: 0px 0px 20px rgba(0, 201, 255, 0.3);
+    }}
+
+    [data-testid="stMetric"] {{
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15); transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    }}
+    [data-testid="stMetric"]:hover {{
+        transform: translateY(-7px); border-color: rgba(0, 201, 255, 0.5);
+        box-shadow: 0 10px 30px rgba(0, 201, 255, 0.2); background: linear-gradient(145deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+    }}
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# --- 3. KONEKSI SUPABASE ---
 SUPABASE_URL = "https://elnedvfsuxfdizrpciwb.supabase.co"
 SUPABASE_KEY = "sb_publishable_Z3h1zSRnCH5N2LStz_i_aQ__FsnB0Rh"
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # --- 4. SISTEM KEAMANAN ---
 def check_password():
+    def password_entered():
+        if st.session_state["password"] == "131313":
+            st.session_state["password_correct"] = True
+            del st.session_state["password"] 
+        else:
+            st.session_state["password_correct"] = False
+
     if "password_correct" not in st.session_state:
-        st.text_input("Password:", type="password", key="password")
-        if st.button("Login"):
-            if st.session_state["password"] == "131313":
-                st.session_state["password_correct"] = True
-                st.rerun()
-            else: st.error("Password Salah")
+        st.markdown("<h1 class='glowing-title'>🔒 Copyright Fani</h1>", unsafe_allow_html=True)
+        st.info("Silakan masukkan password untuk mengakses MFF Database Manajemen.")
+        st.text_input("Password:", type="password", on_change=password_entered, key="password")
         return False
-    return st.session_state["password_correct"]
+    elif not st.session_state["password_correct"]:
+        st.markdown("<h1 class='glowing-title'>🔒 Copyright Fani</h1>", unsafe_allow_html=True)
+        st.text_input("Password:", type="password", on_change=password_entered, key="password")
+        st.error("⚠️ Password salah. Silakan coba lagi.")
+        return False
+    return True
 
 # --- 5. APLIKASI UTAMA ---
 if check_password():
-    response = supabase.table("pendataan_akun").select("*").order('id', desc=True).execute()
-    df = pd.DataFrame(response.data) if response.data else pd.DataFrame()
     
-    if not df.empty:
-        df['tgl_jual_dt'] = pd.to_datetime(df['tanggal_jual'], errors='coerce')
-        df['bulan_tahun'] = df['tgl_jual_dt'].dt.to_period('M').astype(str)
-        df['harga_beli'] = pd.to_numeric(df['harga_beli'], errors='coerce').fillna(0)
-        df['harga_jual'] = pd.to_numeric(df['harga_jual'], errors='coerce').fillna(0)
-        df['profit_per_akun'] = df['harga_jual'] - df['harga_beli']
+    try:
+        response = supabase.table("pendataan_akun").select("*").order('id', desc=True).execute()
+        if response.data:
+            df = pd.DataFrame(response.data)
+            df['status_stok'] = pd.to_numeric(df['harga_jual'], errors='coerce').fillna(0).apply(
+                lambda x: "🟢 Tersedia" if x == 0 else "🔴 Terjual"
+            )
+            urutan_kolom = [
+                "id", "tanggal_beli", "tanggal_jual", "status_stok", "nama_game", "nama_penjual", 
+                "email_akun", "password_akun", "wa_penjual", "fb_penjual", 
+                "harga_beli", "nama_pembeli", "no_wa", "akun_fb", "harga_jual", "screenshot"
+            ]
+            kolom_tersedia = [kol for kol in urutan_kolom if kol in df.columns]
+            df = df[kolom_tersedia]
+        else:
+            df = pd.DataFrame(columns=["id", "tanggal_beli", "tanggal_jual", "status_stok", "nama_game", "nama_penjual", "email_akun", "password_akun", "wa_penjual", "fb_penjual", "harga_beli", "nama_pembeli", "no_wa", "akun_fb", "harga_jual", "screenshot"])
+    except Exception as e:
+        st.error(f"Gagal memuat data: {e}")
+        st.stop()
 
-    # --- SIDEBAR & FILTER ---
+    # --- MENU SIDEBAR ---
     st.sidebar.markdown("### ⚙️ Sistem Navigasi")
-    menu_pilihan = st.sidebar.radio("Menu Utama:", ["📊 Dashboard Analitik", "📝 Input Transaksi", "🗄️ Database & Manajemen"], label_visibility="collapsed")
+    menu_pilihan = st.sidebar.radio(
+        "Menu Utama:",
+        ["📊 Dashboard Analitik", "📝 Input Transaksi", "🗄️ Database & Manajemen"],
+        label_visibility="collapsed"
+    )
     
+    st.sidebar.markdown("<br><br><br>", unsafe_allow_html=True)
     st.sidebar.markdown("---")
-    st.sidebar.markdown("### 📅 Filter Waktu")
-    
-    # Ambil daftar bulan unik dari data
-    daftar_bulan = sorted(df['bulan_tahun'].dropna().unique(), reverse=True) if not df.empty else []
-    pilih_bulan = st.sidebar.selectbox("Pilih Bulan Transaksi:", ["Semua Bulan"] + daftar_bulan)
-    
-    # Filter Global: Semua data di bawah akan mengikuti df_filter
-    df_filter = df[df['bulan_tahun'] == pilih_bulan].copy() if pilih_bulan != "Semua Bulan" else df.copy()
+    st.sidebar.caption("Sistem MFF Pro v2.5")
+    if st.sidebar.button("🚪 Logout Sistem", use_container_width=True):
+        st.session_state.clear()
+        st.rerun()
 
-    # --- DASHBOARD ANALITIK (Satu blok saja, jangan duplikat!) ---
+    st.markdown("<h1 class='glowing-title'>☁️ MFF Database Manajemen Buy & Sell</h1>", unsafe_allow_html=True)
+    st.caption("Akses Aman • Analitik Real-time • Data Sinkronisasi Cloud")
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # ==========================================
+    # HALAMAN 1: DASHBOARD
+    # ==========================================
     if menu_pilihan == "📊 Dashboard Analitik":
-        st.markdown("<h1 class='glowing-title'>☁️ MFF Dashboard</h1>", unsafe_allow_html=True)
-        st.markdown(f"#### Menampilkan data untuk: **{pilih_bulan}**")
-        
-        # Menggunakan Tab agar UI tidak berantakan
-        tab1, tab2 = st.tabs(["📅 Fokus Bulan Ini", "🌐 Laporan All-Time"])
-        
-        with tab1:
-            if not df_filter.empty:
-                # Menghitung metrik berdasarkan df_filter (Otomatis reset per bulan)
-                stok = len(df_filter[df_filter['harga_jual'] == 0])
-                terjual = len(df_filter[df_filter['harga_jual'] > 0])
-                profit = df_filter[df_filter['harga_jual'] > 0]['profit_per_akun'].sum()
-                
-                c1, c2, c3 = st.columns(3)
-                c1.metric("📦 In Stock", f"{stok} Akun")
-                c2.metric("✅ Terjual", f"{terjual} Akun")
-                c3.metric("💰 Profit", f"Rp {profit:,.0f}")
-                
-                st.markdown("### 📈 Grafik Omzet Harian")
-                st.area_chart(df_filter.groupby('tanggal_jual')['harga_jual'].sum())
-            else:
-                st.info("Tidak ada transaksi di bulan ini.")
-
-        with tab2:
-            st.markdown("### 📊 Ringkasan Keseluruhan")
-            st.metric("💳 Total Modal (All-Time)", f"Rp {df['harga_beli'].sum():,.0f}")
-            st.bar_chart(df.groupby('bulan_tahun')['harga_jual'].sum())
-
-    if menu_pilihan == "📊 Dashboard Analitik":
-        st.markdown("### 📊 Executive Summary")
-        if not df.empty:
-            # ... (kode pengolahan angka yang sudah ada) ...
-            
-            # PASTIKAN BAGIAN INI SEJAJAR DENGAN st.markdown "### 📊 Executive Summary"
-            st.markdown("---")
-            st.markdown("### 📅 Resume Rekap Bulanan")
-            
-            # 1. Pastikan kolom tanggal jual sudah format datetime
-            df['tgl_jual_dt'] = pd.to_datetime(df['tanggal_jual'], errors='coerce')
-            
-            # 2. Filter data yang terjual saja & buat grup bulan
-            df_rekap = df[df['tgl_jual_dt'].notna()].copy()
-            df_rekap['bulan_tahun'] = df_rekap['tgl_jual_dt'].dt.to_period('M')
-            
-            # 3. Hitung Omzet dan jumlah akun per bulan
-            rekap_bulanan = df_rekap.groupby('bulan_tahun').agg({
-                'harga_jual': 'sum',
-                'id': 'count'
-            }).sort_index(ascending=False)
-            
-            # 4. Tampilkan dalam 2 kolom (Tabel & Grafik)
-            col_tabel, col_grafik = st.columns([1, 2])
-            
-            with col_tabel:
-                st.dataframe(
-                    rekap_bulanan,
-                    use_container_width=True,
-                    column_config={
-                        "harga_jual": st.column_config.NumberColumn("Total Omzet", format="Rp %d"),
-                        "id": st.column_config.NumberColumn("Jumlah Terjual")
-                    }
-                )
-            
-            with col_grafik:
-                st.bar_chart(rekap_bulanan['harga_jual'])
+        st.markdown("### 📊 Ringkasan Eksekutif")
         if not df.empty:
             df['harga_beli'] = pd.to_numeric(df['harga_beli'], errors='coerce').fillna(0)
             df['harga_jual'] = pd.to_numeric(df['harga_jual'], errors='coerce').fillna(0)
@@ -138,7 +170,7 @@ if check_password():
             df_terjual = df[(df['harga_jual'] > 0) & (df['tanggal_jual'] != "-") & (df['tanggal_jual'].notna())].copy()
             profit_hari_ini = df_terjual[df_terjual['tanggal_jual'] == tanggal_hari_ini]['profit_per_akun'].sum()
 
-            st.markdown("#### 🚨 Rekomendasi Tindakan")
+            st.markdown("#### 🚨 Notifikasi & Rekomendasi Tindakan")
             df_stok_aktif = df[df['harga_jual'] == 0].copy()
             akun_lama_count = 0
             
@@ -209,7 +241,6 @@ if check_password():
                 with col_wab: wa_buyer = st.text_input("WA Pembeli")
                 with col_fbb: fb_buyer = st.text_input("FB Pembeli")
                 h_jual = st.number_input("Harga Jual (Rp)", min_value=0)
-                keterangan = st.text_area("Keterangan Tambahan")
 
             st.markdown("<br>", unsafe_allow_html=True)
             if st.form_submit_button("💾 Simpan Data ke Cloud Database", use_container_width=True):
@@ -224,9 +255,7 @@ if check_password():
                     "tanggal_beli": str(t_beli), "nama_game": game, "email_akun": email, "password_akun": pass_akun, 
                     "nama_penjual": seller, "wa_penjual": wa_seller, "fb_penjual": fb_seller,
                     "harga_beli": float(h_beli), "tanggal_jual": str(t_jual) if t_jual else "-",
-                    "nama_pembeli": buyer, "no_wa": wa_buyer, "akun_fb": fb_buyer, "harga_jual": float(h_jual), 
-                    "keterangan": keterangan, # <-- Tambahkan ini
-                    "screenshot": url
+                    "nama_pembeli": buyer, "no_wa": wa_buyer, "akun_fb": fb_buyer, "harga_jual": float(h_jual), "screenshot": url
                 }
                 supabase.table("pendataan_akun").insert(payload).execute()
                 st.success("✅ Transaksi Berhasil Disimpan!")
@@ -263,8 +292,7 @@ if check_password():
                 "status_stok": st.column_config.TextColumn("Status Stok"),
                 "harga_beli": st.column_config.NumberColumn("Harga Beli", format="Rp %d"),
                 "harga_jual": st.column_config.NumberColumn("Harga Jual", format="Rp %d"),
-                "screenshot": st.column_config.LinkColumn("Screenshot", display_text="Lihat"),
-                "keterangan": st.column_config.TextColumn("Keterangan", width="medium"),
+                "screenshot": st.column_config.LinkColumn("Screenshot", display_text="Lihat Gambar"),
                 "profit_per_akun": None 
             }
         )
@@ -307,7 +335,7 @@ if check_password():
                         f"👤 Buyer: {row_media['nama_pembeli']}\n"
                         f"💰 Nominal Jual: Rp {pd.to_numeric(row_media['harga_jual']):,.0f}\n"
                         f"-----------------------------------\n"
-                        f"Maturnuwun! Percayakan kebutuhan game Anda hanya di Vizz Corp. 🙏🌟"
+                        f"Maturnuwun! Percayakan kebutuhan game Anda hanya di Copyright Fani. 🙏🌟"
                     )
                 st.caption("Klik tombol copy di sudut kanan atas kotak ini untuk menyalin:")
                 st.code(teks_laporan, language="text")
@@ -319,53 +347,46 @@ if check_password():
             tab_edit, tab_hapus = st.tabs(["📝 Edit Data", "🗑️ Hapus Data"])
             
             with tab_edit:
-                eid = st.selectbox("Pilih ID Akun:", df['id'].tolist(), key="select_edit")
+                eid = st.selectbox("Pilih ID Akun yang ingin Anda edit:", df['id'].tolist(), key="select_edit")
                 row_edit = df[df['id'] == eid].iloc[0]
-            
+                
                 with st.form(f"edit_form_{eid}"):
                     st.info(f"Silakan perbarui rincian data untuk ID: {eid}")
-                    c1, c2 = st.columns(2)
-                
-                    with c1:
-                        st.caption("🛍️ PEMBELIAN (MODAL)")
-                        # Menambahkan Tanggal Beli
-                        t_beli = st.date_input("Tanggal Beli", value=pd.to_datetime(row_edit['tanggal_beli']).date() if row_edit['tanggal_beli'] != "-" else datetime.today(), key=f"tb_{eid}")
-                        eg = st.text_input("Game", value=row_edit['nama_game'], key=f"eg_{eid}")
-                        ee = st.text_input("Email Akun", value=row_edit.get('email_akun', ''), key=f"ee_{eid}")
-                        epa = st.text_input("Password Akun", value=row_edit.get('password_akun', ''), key=f"epa_{eid}")
-                        es = st.text_input("Nama Penjual", value=row_edit.get('nama_penjual', ''), key=f"es_{eid}")
-                        ews = st.text_input("WA Penjual", value=row_edit.get('wa_penjual', ''), key=f"ews_{eid}")
-                        efs = st.text_input("FB Penjual", value=row_edit.get('fb_penjual', ''), key=f"efs_{eid}")
-                        ehb = st.number_input("Harga Beli", value=float(row_edit.get('harga_beli', 0)), key=f"ehb_{eid}")
-                
-                    with c2:
-                        st.caption("💰 PENJUALAN (PROFIT)")
-                        # Menambahkan Tanggal Jual
-                        t_jual = st.date_input("Tanggal Jual", value=pd.to_datetime(row_edit['tanggal_jual']).date() if row_edit['tanggal_jual'] != "-" else None, key=f"tj_{eid}")
-                        eb = st.text_input("Nama Pembeli", value=row_edit.get('nama_pembeli', ''), key=f"eb_{eid}")
-                        ewb = st.text_input("WA Pembeli", value=row_edit.get('no_wa', ''), key=f"ewb_{eid}")
-                        efb = st.text_input("FB Pembeli", value=row_edit.get('akun_fb', ''), key=f"efb_{eid}")
-                        ehj = st.number_input("Harga Jual", value=float(row_edit.get('harga_jual', 0)), key=f"ehj_{eid}")
-                        eketerangan = st.text_area("Keterangan", value=row_edit.get('keterangan', ''), key=f"ket_{eid}")
-                        ss_edit = st.file_uploader("🖼️ Update Screenshot Baru", type=['png', 'jpg', 'jpeg'], key=f"ss_{eid}")
-
-                    if st.form_submit_button("💾 Update Seluruh Data", use_container_width=True, key=f"btn_{eid}"):
-                        upd = {
-                            "tanggal_beli": str(t_beli),
-                            "tanggal_jual": str(t_jual) if t_jual else "-",
-                            "nama_game": eg, "email_akun": ee, "password_akun": epa,
-                            "nama_penjual": es, "wa_penjual": ews, "fb_penjual": efs,
-                            "harga_beli": ehb, "nama_pembeli": eb, "no_wa": ewb, 
-                            "akun_fb": efb, "harga_jual": ehj, "keterangan": eketerangan
-                        }
-                        if ss_edit:
-                            fname = f"edit_{eid}_{ss_edit.name}".replace(" ","_")
-                            supabase.storage.from_("screenshots").upload(fname, ss_edit.getvalue())
-                            upd["screenshot"] = supabase.storage.from_("screenshots").get_public_url(fname)
+                    e_col1, e_col2 = st.columns(2)
                     
+                    with e_col1:
+                        st.caption("🛍️ PEMBELIAN (MODAL)")
+                        try: val_tb = datetime.strptime(str(row_edit['tanggal_beli']), "%Y-%m-%d").date()
+                        except: val_tb = datetime.today().date()
+                        etb = st.date_input("Tanggal Beli", value=val_tb)
+                        eg = st.text_input("Game", value=row_edit['nama_game'])
+                        ee = st.text_input("Email", value=row_edit['email_akun'])
+                        epa = st.text_input("Password Akun", value=row_edit.get('password_akun','-')) 
+                        es = st.text_input("Seller", value=row_edit.get('nama_penjual',''))
+                        ews = st.text_input("WA Seller", value=row_edit.get('wa_penjual',''))
+                        efs = st.text_input("FB Seller", value=row_edit.get('fb_penjual',''))
+                        ehb = st.number_input("Harga Beli", value=float(row_edit['harga_beli']))
+                        
+                    with e_col2:
+                        st.caption("💰 PENJUALAN (PROFIT)")
+                        try: val_tj = datetime.strptime(str(row_edit['tanggal_jual']), "%Y-%m-%d").date()
+                        except: val_tj = None
+                        etj = st.date_input("Tanggal Jual", value=val_tj)
+                        eb = st.text_input("Buyer", value=row_edit['nama_pembeli'])
+                        ewb = st.text_input("WA Buyer", value=row_edit['no_wa'])
+                        efb = st.text_input("FB Buyer", value=row_edit.get('akun_fb',''))
+                        ehj = st.number_input("💵 Harga Jual", value=float(row_edit['harga_jual']))
+                        
+                    st.markdown("<br>", unsafe_allow_html=True)
+                    if st.form_submit_button("💾 Update Seluruh Data", use_container_width=True):
+                        upd = {
+                            "tanggal_beli": str(etb) if etb else "-", "nama_game": eg, "email_akun": ee, "password_akun": epa,
+                            "nama_penjual": es, "wa_penjual": ews, "fb_penjual": efs, "harga_beli": ehb,
+                            "tanggal_jual": str(etj) if etj else "-", "nama_pembeli": eb, "no_wa": ewb, "akun_fb": efb, "harga_jual": ehj
+                        }
                         supabase.table("pendataan_akun").update(upd).eq("id", eid).execute()
-                        st.success("Data berhasil diupdate!")
-                        st.rerun()	
+                        st.success("Rincian data berhasil diupdate!")
+                        st.rerun()
             
             with tab_hapus:
                 did = st.number_input("Masukkan ID yang akan dihapus:", min_value=0, step=1, value=int(df['id'].iloc[0]))
