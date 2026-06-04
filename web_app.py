@@ -157,6 +157,38 @@ if check_password():
     # ==========================================
     if menu_pilihan == "📊 Dashboard Analitik":
         st.markdown("### 📊 Executive Summary")
+        # --- TAMBAHAN: REKAP BULANAN ---
+            st.markdown("---")
+            st.markdown("### 📅 Resume Rekap Bulanan")
+            
+            # 1. Pastikan kolom tanggal jual sudah format datetime
+            df['tgl_jual_dt'] = pd.to_datetime(df['tanggal_jual'], errors='coerce')
+            
+            # 2. Filter data yang terjual saja & buat grup bulan
+            df_rekap = df[df['tgl_jual_dt'].notna()].copy()
+            df_rekap['bulan_tahun'] = df_rekap['tgl_jual_dt'].dt.to_period('M')
+            
+            # 3. Hitung Omzet dan jumlah akun per bulan
+            rekap_bulanan = df_rekap.groupby('bulan_tahun').agg({
+                'harga_jual': 'sum',
+                'id': 'count'
+            }).sort_index(ascending=False)
+            
+            # 4. Tampilkan dalam 2 kolom (Tabel & Grafik)
+            col_tabel, col_grafik = st.columns([1, 2])
+            
+            with col_tabel:
+                st.dataframe(
+                    rekap_bulanan,
+                    use_container_width=True,
+                    column_config={
+                        "harga_jual": st.column_config.NumberColumn("Total Omzet", format="Rp %d"),
+                        "id": st.column_config.NumberColumn("Jumlah Terjual")
+                    }
+                )
+            
+            with col_grafik:
+                st.bar_chart(rekap_bulanan['harga_jual'])
         if not df.empty:
             df['harga_beli'] = pd.to_numeric(df['harga_beli'], errors='coerce').fillna(0)
             df['harga_jual'] = pd.to_numeric(df['harga_jual'], errors='coerce').fillna(0)
