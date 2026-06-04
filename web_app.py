@@ -6,19 +6,19 @@ from datetime import datetime
 # --- 1. PENGATURAN HALAMAN ---
 st.set_page_config(page_title="MFF Database", page_icon="🎮", layout="wide", initial_sidebar_state="expanded")
 
-# --- 2. DESAIN UI ---
+# --- 2. DESAIN UI (CSS SAJA) ---
 st.markdown("""
     <style>
     .glowing-title { font-size: 38px; font-weight: 800; background: linear-gradient(90deg, #00C9FF 0%, #92FE9D 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     </style>
 """, unsafe_allow_html=True)
 
-# --- 3. KONEKSI SUPABASE ---
+# --- 3. KONEKSI ---
 SUPABASE_URL = "https://elnedvfsuxfdizrpciwb.supabase.co"
 SUPABASE_KEY = "sb_publishable_Z3h1zSRnCH5N2LStz_i_aQ__FsnB0Rh"
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# --- 4. SISTEM KEAMANAN ---
+# --- 4. KEAMANAN ---
 def check_password():
     if "password_correct" not in st.session_state:
         st.text_input("Password:", type="password", key="password")
@@ -26,8 +26,7 @@ def check_password():
             if st.session_state["password"] == "131313":
                 st.session_state["password_correct"] = True
                 st.rerun()
-            else:
-                st.error("Password Salah")
+            else: st.error("Password Salah")
         return False
     return st.session_state["password_correct"]
 
@@ -36,7 +35,6 @@ if check_password():
     response = supabase.table("pendataan_akun").select("*").order('id', desc=True).execute()
     df = pd.DataFrame(response.data) if response.data else pd.DataFrame()
     
-    # Preprocessing
     if not df.empty:
         df['tgl_jual_dt'] = pd.to_datetime(df['tanggal_jual'], errors='coerce')
         df['bulan_tahun'] = df['tgl_jual_dt'].dt.to_period('M').astype(str)
@@ -44,24 +42,24 @@ if check_password():
         df['harga_jual'] = pd.to_numeric(df['harga_jual'], errors='coerce').fillna(0)
         df['profit_per_akun'] = df['harga_jual'] - df['harga_beli']
 
-    # --- SIDEBAR & FILTER ---
+    # --- SIDEBAR (FILTER DITARUH DI SINI) ---
     st.sidebar.markdown("### ⚙️ Sistem Navigasi")
     menu_pilihan = st.sidebar.radio("Menu Utama:", ["📊 Dashboard Analitik", "📝 Input Transaksi", "🗄️ Database & Manajemen"])
     
     st.sidebar.markdown("---")
     st.sidebar.markdown("### 📅 Filter Waktu")
     daftar_bulan = sorted(df['bulan_tahun'].dropna().unique(), reverse=True) if not df.empty else []
-    pilih_bulan = st.sidebar.selectbox("Pilih Bulan Transaksi:", ["Semua Bulan"] + daftar_bulan)
-
-    # Filter Global
+    pilih_bulan = st.sidebar.selectbox("Pilih Bulan:", ["Semua Bulan"] + daftar_bulan)
+    
     df_filter = df[df['bulan_tahun'] == pilih_bulan].copy() if pilih_bulan != "Semua Bulan" else df.copy()
 
-    # --- HALAMAN DASHBOARD ---
+    # --- DASHBOARD ---
     if menu_pilihan == "📊 Dashboard Analitik":
         st.markdown("<h1 class='glowing-title'>☁️ MFF Dashboard</h1>", unsafe_allow_html=True)
         tab_bulan, tab_all = st.tabs(["📅 Fokus Bulan Ini", "🌐 Laporan Keseluruhan"])
         
         with tab_bulan:
+            st.markdown(f"#### Data Khusus: **{pilih_bulan}**")
             if not df_filter.empty:
                 c1, c2, c3 = st.columns(3)
                 c1.metric("📦 In Stock", f"{len(df_filter[df_filter['harga_jual'] == 0])} Akun")
@@ -75,6 +73,8 @@ if check_password():
         
         with tab_all:
             st.metric("💳 Total Modal (All-Time)", f"Rp {df['harga_beli'].sum():,.0f}")
+
+    # ... (Lanjutkan dengan kode Input Transaksi & Database seperti semula)
 
     # ... (Lanjutkan dengan blok Input dan Database lainnya)
 
