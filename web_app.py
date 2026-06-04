@@ -158,8 +158,7 @@ if check_password():
     if menu_pilihan == "📊 Dashboard Analitik":
         st.markdown("### 📊 Executive Summary")
         # --- TAMBAHAN: REKAP BULANAN ---
-            st.markdown("---")
-            st.markdown("### 📅 Resume Rekap Bulanan")
+        st.markdown("### 📅 Resume Rekap Bulanan")
             
             # 1. Pastikan kolom tanggal jual sudah format datetime
             df['tgl_jual_dt'] = pd.to_datetime(df['tanggal_jual'], errors='coerce')
