@@ -68,6 +68,24 @@ st.markdown(
         -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0px; text-shadow: 0px 0px 20px rgba(0, 201, 255, 0.3);
     }}
 
+    # --- 1. PROSES FILTER BULAN GLOBAL ---
+    # Ubah kolom tanggal jual jadi datetime agar bisa difilter
+    df['tgl_jual_dt'] = pd.to_datetime(df['tanggal_jual'], errors='coerce')
+    df['bulan_tahun'] = df['tgl_jual_dt'].dt.to_period('M').astype(str)
+    
+    # Ambil daftar bulan unik
+    daftar_bulan = sorted(df['bulan_tahun'].dropna().unique(), reverse=True)
+    daftar_bulan.insert(0, "Semua Bulan") # Opsi untuk melihat total semua
+
+    # Widget Filter di Sidebar
+    st.sidebar.markdown("### 📅 Filter Waktu")
+    pilih_bulan = st.sidebar.selectbox("Pilih Bulan Transaksi:", daftar_bulan)
+
+    # Filter DataFrame berdasarkan pilihan
+    if pilih_bulan != "Semua Bulan":
+        df = df[df['bulan_tahun'] == pilih_bulan].copy()
+    
+    # --- LANJUT KE MENU SIDEBAR ---
     [data-testid="stMetric"] {{
         background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
         border: 1px solid rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 16px;
