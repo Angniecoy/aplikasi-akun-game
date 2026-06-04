@@ -54,25 +54,33 @@ if check_password():
     df_filter = df[df['bulan_tahun'] == pilih_bulan].copy() if pilih_bulan != "Semua Bulan" else df.copy()
 
     # --- DASHBOARD ---
-    if menu_pilihan == "📊 Dashboard Analitik":
-        st.markdown("<h1 class='glowing-title'>☁️ MFF Dashboard</h1>", unsafe_allow_html=True)
-        tab_bulan, tab_all = st.tabs(["📅 Fokus Bulan Ini", "🌐 Laporan Keseluruhan"])
-        
-        with tab_bulan:
-            st.markdown(f"#### Data Khusus: **{pilih_bulan}**")
-            if not df_filter.empty:
-                c1, c2, c3 = st.columns(3)
-                c1.metric("📦 In Stock", f"{len(df_filter[df_filter['harga_jual'] == 0])} Akun")
-                c2.metric("✅ Terjual", f"{len(df_filter[df_filter['harga_jual'] > 0])} Akun")
-                c3.metric("💰 Profit", f"Rp {df_filter[df_filter['harga_jual'] > 0]['profit_per_akun'].sum():,.0f}")
-                
-                st.markdown("### 📅 Resume Rekap Transaksi")
-                st.bar_chart(df_filter.groupby('tanggal_jual')['harga_jual'].sum())
-            else:
-                st.info("Belum ada data untuk bulan ini.")
-        
-        with tab_all:
-            st.metric("💳 Total Modal (All-Time)", f"Rp {df['harga_beli'].sum():,.0f}")
+if menu_pilihan == "📊 Dashboard Analitik":
+    st.markdown("<h1 class='glowing-title'>☁️ MFF Dashboard</h1>", unsafe_allow_html=True)
+    
+    # Gunakan Tabs agar UI bersih
+    tab_bulan, tab_all = st.tabs(["📅 Fokus Bulan Ini", "🌐 Laporan Keseluruhan"])
+    
+    with tab_bulan:
+        st.markdown(f"#### Data Transaksi: **{pilih_bulan}**")
+        if not df_filter.empty:
+            # Pastikan kolom sudah numerik agar tidak error
+            c1, c2, c3 = st.columns(3)
+            c1.metric("📦 In Stock", f"{len(df_filter[df_filter['harga_jual'] == 0])} Akun")
+            c2.metric("✅ Terjual", f"{len(df_filter[df_filter['harga_jual'] > 0])} Akun")
+            # Hitung profit hanya dari yang sudah terjual di bulan tersebut
+            profit_bln = df_filter[df_filter['harga_jual'] > 0]['profit_per_akun'].sum()
+            c3.metric("💰 Profit", f"Rp {profit_bln:,.0f}")
+            
+            st.markdown("### 📈 Grafik Omzet Harian")
+            st.bar_chart(df_filter.groupby('tanggal_jual')['harga_jual'].sum())
+        else:
+            st.info("Belum ada data transaksi di bulan yang dipilih.")
+            
+    with tab_all:
+        st.markdown("### 📊 Ringkasan All-Time")
+        c1, c2 = st.columns(2)
+        c1.metric("💳 Total Modal", f"Rp {df['harga_beli'].sum():,.0f}")
+        c2.metric("💎 Total Profit Bersih", f"Rp {df['profit_per_akun'].sum():,.0f}")
 
     # ... (Lanjutkan dengan kode Input Transaksi & Database seperti semula)
 
