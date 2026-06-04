@@ -3,102 +3,15 @@ from supabase import create_client, Client
 import pandas as pd
 from datetime import datetime
 
-# --- 1. PENGATURAN HALAMAN UTAMA ---
+# --- 1. PENGATURAN HALAMAN ---
 st.set_page_config(page_title="MFF Database", page_icon="🎮", layout="wide", initial_sidebar_state="expanded")
 
-# --- 2. DESAIN UI KUSTOM TINGKAT LANJUT ---
-background_image_url = "https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?q=80&w=2071&auto=format&fit=crop"
-
-st.markdown(
-    f"""
+# --- 2. DESAIN UI ---
+st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap');
-
-    html, body, [class*="css"] {{
-        font-family: 'Poppins', sans-serif;
-    }}
-
-    .stApp {{
-        background-image: url("{background_image_url}");
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
-    }}
-    .stApp > header {{ background-color: transparent; }}
-    
-    .block-container {{
-        background-color: rgba(14, 17, 23, 0.85); 
-        padding: 2.5rem;
-        border-radius: 20px;
-        box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.6);
-        backdrop-filter: blur(8px);
-        margin-top: 2rem;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-    }}
-
-    [data-testid="stSidebar"] {{
-        background: linear-gradient(180deg, #0b0f19 0%, #161b22 100%) !important;
-        border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
-        position: relative;
-        overflow: hidden;
-    }}
-    
-    [data-testid="stSidebar"]::before {{
-        content: ""; position: absolute; top: -100px; left: -100px; width: 300px; height: 300px;
-        background: radial-gradient(circle, rgba(0, 201, 255, 0.15) 0%, transparent 70%); border-radius: 50%; z-index: 0; pointer-events: none;
-    }}
-
-    [data-testid="stSidebar"]::after {{
-        content: ""; position: absolute; bottom: -100px; right: -100px; width: 250px; height: 250px;
-        background: radial-gradient(circle, rgba(146, 254, 157, 0.1) 0%, transparent 70%); border-radius: 50%; z-index: 0; pointer-events: none;
-    }}
-
-    .stRadio > div {{ gap: 12px; position: relative; z-index: 1; }}
-    .stRadio > div > label {{
-        background: rgba(255, 255, 255, 0.03) !important; border: 1px solid rgba(255, 255, 255, 0.05) !important;
-        border-radius: 12px !important; padding: 12px 15px !important; transition: all 0.3s ease !important; cursor: pointer;
-    }}
-    .stRadio > div > label:hover {{
-        background: linear-gradient(90deg, rgba(0, 201, 255, 0.1) 0%, transparent 100%) !important;
-        border-color: rgba(0, 201, 255, 0.4) !important; transform: translateX(8px);
-    }}
-
-    .glowing-title {{
-        font-size: 38px; font-weight: 800; background: linear-gradient(90deg, #00C9FF 0%, #92FE9D 100%);
-        -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0px; text-shadow: 0px 0px 20px rgba(0, 201, 255, 0.3);
-    }}
-
-    # --- 1. PROSES FILTER BULAN GLOBAL ---
-    # Ubah kolom tanggal jual jadi datetime agar bisa difilter
-    df['tgl_jual_dt'] = pd.to_datetime(df['tanggal_jual'], errors='coerce')
-    df['bulan_tahun'] = df['tgl_jual_dt'].dt.to_period('M').astype(str)
-    
-    # Ambil daftar bulan unik
-    daftar_bulan = sorted(df['bulan_tahun'].dropna().unique(), reverse=True)
-    daftar_bulan.insert(0, "Semua Bulan") # Opsi untuk melihat total semua
-
-    # Widget Filter di Sidebar
-    st.sidebar.markdown("### 📅 Filter Waktu")
-    pilih_bulan = st.sidebar.selectbox("Pilih Bulan Transaksi:", daftar_bulan)
-
-    # Filter DataFrame berdasarkan pilihan
-    if pilih_bulan != "Semua Bulan":
-        df = df[df['bulan_tahun'] == pilih_bulan].copy()
-    
-    # --- LANJUT KE MENU SIDEBAR ---
-    [data-testid="stMetric"] {{
-        background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
-        border: 1px solid rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 16px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.15); transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-    }}
-    [data-testid="stMetric"]:hover {{
-        transform: translateY(-7px); border-color: rgba(0, 201, 255, 0.5);
-        box-shadow: 0 10px 30px rgba(0, 201, 255, 0.2); background: linear-gradient(145deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
-    }}
+    .glowing-title { font-size: 38px; font-weight: 800; background: linear-gradient(90deg, #00C9FF 0%, #92FE9D 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     </style>
-    """,
-    unsafe_allow_html=True
-)
+""", unsafe_allow_html=True)
 
 # --- 3. KONEKSI SUPABASE ---
 SUPABASE_URL = "https://elnedvfsuxfdizrpciwb.supabase.co"
@@ -107,107 +20,63 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # --- 4. SISTEM KEAMANAN ---
 def check_password():
-    def password_entered():
-        if st.session_state["password"] == "131313":
-            st.session_state["password_correct"] = True
-            del st.session_state["password"] 
-        else:
-            st.session_state["password_correct"] = False
-
     if "password_correct" not in st.session_state:
-        st.markdown("<h1 class='glowing-title'>🔒 Vizz Corp.</h1>", unsafe_allow_html=True)
-        st.info("Enter your password.")
-        st.text_input("Password:", type="password", on_change=password_entered, key="password")
+        st.text_input("Password:", type="password", key="password")
+        if st.button("Login"):
+            if st.session_state["password"] == "131313":
+                st.session_state["password_correct"] = True
+                st.rerun()
+            else:
+                st.error("Password Salah")
         return False
-    elif not st.session_state["password_correct"]:
-        st.markdown("<h1 class='glowing-title'>🔒 Vizz Corp.</h1>", unsafe_allow_html=True)
-        st.text_input("Password:", type="password", on_change=password_entered, key="password")
-        st.error("⚠️ Password salah. Silakan coba lagi.")
-        return False
-    return True
+    return st.session_state["password_correct"]
 
-# --- 5. APLIKASI UTAMA ---
 # --- 5. APLIKASI UTAMA ---
 if check_password():
+    response = supabase.table("pendataan_akun").select("*").order('id', desc=True).execute()
+    df = pd.DataFrame(response.data) if response.data else pd.DataFrame()
     
-    # ... (kode pengambilan data Supabase Anda, biarkan tetap sama)
-    
-    # --- MENU SIDEBAR (Letakkan ini paling atas setelah load data) ---
+    # Preprocessing
+    if not df.empty:
+        df['tgl_jual_dt'] = pd.to_datetime(df['tanggal_jual'], errors='coerce')
+        df['bulan_tahun'] = df['tgl_jual_dt'].dt.to_period('M').astype(str)
+        df['harga_beli'] = pd.to_numeric(df['harga_beli'], errors='coerce').fillna(0)
+        df['harga_jual'] = pd.to_numeric(df['harga_jual'], errors='coerce').fillna(0)
+        df['profit_per_akun'] = df['harga_jual'] - df['harga_beli']
+
+    # --- SIDEBAR & FILTER ---
     st.sidebar.markdown("### ⚙️ Sistem Navigasi")
-    menu_pilihan = st.sidebar.radio(
-        "Menu Utama:",
-        ["📊 Dashboard Analitik", "📝 Input Transaksi", "🗄️ Database & Manajemen"],
-        label_visibility="collapsed"
-    )
-
-    # --- 1. PROSES FILTER BULAN GLOBAL (Taruh di sini, bukan di dalam markdown!) ---
-    df['tgl_jual_dt'] = pd.to_datetime(df['tanggal_jual'], errors='coerce')
-    df['bulan_tahun'] = df['tgl_jual_dt'].dt.to_period('M').astype(str)
+    menu_pilihan = st.sidebar.radio("Menu Utama:", ["📊 Dashboard Analitik", "📝 Input Transaksi", "🗄️ Database & Manajemen"])
     
-    daftar_bulan = sorted(df['bulan_tahun'].dropna().unique(), reverse=True)
-    options = ["Semua Bulan"] + daftar_bulan
-    
+    st.sidebar.markdown("---")
     st.sidebar.markdown("### 📅 Filter Waktu")
-    # Default index 1 otomatis ke bulan terbaru
-    pilih_bulan = st.sidebar.selectbox("Pilih Bulan Transaksi:", options, index=1 if len(options) > 1 else 0)
+    daftar_bulan = sorted(df['bulan_tahun'].dropna().unique(), reverse=True) if not df.empty else []
+    pilih_bulan = st.sidebar.selectbox("Pilih Bulan Transaksi:", ["Semua Bulan"] + daftar_bulan)
 
-    if pilih_bulan != "Semua Bulan":
-        df_filter = df[df['bulan_tahun'] == pilih_bulan].copy()
-    else:
-        df_filter = df.copy()
+    # Filter Global
+    df_filter = df[df['bulan_tahun'] == pilih_bulan].copy() if pilih_bulan != "Semua Bulan" else df.copy()
 
-    # --- JUDUL HALAMAN ---
-    st.markdown("<h1 class='glowing-title'>☁️ MFF Database Manajemen Buy & Sell</h1>", unsafe_allow_html=True)
-    st.caption("Akses Aman • Analitik Real-time • Data Sinkronisasi Cloud")
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    # ==========================================
-    # HALAMAN 1: DASHBOARD
-    # ==========================================
+    # --- HALAMAN DASHBOARD ---
     if menu_pilihan == "📊 Dashboard Analitik":
-        st.markdown("### 📊 Executive Summary")
-        
-        # TAB UNTUK ANALITIK
+        st.markdown("<h1 class='glowing-title'>☁️ MFF Dashboard</h1>", unsafe_allow_html=True)
         tab_bulan, tab_all = st.tabs(["📅 Fokus Bulan Ini", "🌐 Laporan Keseluruhan"])
         
         with tab_bulan:
-            st.markdown(f"#### Data Khusus: **{pilih_bulan}**")
             if not df_filter.empty:
-                # Perhitungan berdasarkan df_filter (Reset otomatis per bulan)
-                stok = len(df_filter[df_filter['harga_jual'] == 0])
-                terjual = len(df_filter[df_filter['harga_jual'] > 0])
-                profit = (pd.to_numeric(df_filter['harga_jual'], errors='coerce') - 
-                          pd.to_numeric(df_filter['harga_beli'], errors='coerce')).sum()
-                
                 c1, c2, c3 = st.columns(3)
-                c1.metric("📦 In Stock", f"{stok} Akun")
-                c2.metric("✅ Terjual", f"{terjual} Akun")
-                c3.metric("💰 Profit", f"Rp {profit:,.0f}")
+                c1.metric("📦 In Stock", f"{len(df_filter[df_filter['harga_jual'] == 0])} Akun")
+                c2.metric("✅ Terjual", f"{len(df_filter[df_filter['harga_jual'] > 0])} Akun")
+                c3.metric("💰 Profit", f"Rp {df_filter[df_filter['harga_jual'] > 0]['profit_per_akun'].sum():,.0f}")
                 
-                # REKAP BULANAN (Sesuai permintaan Anda untuk data tengah)
                 st.markdown("### 📅 Resume Rekap Transaksi")
                 st.bar_chart(df_filter.groupby('tanggal_jual')['harga_jual'].sum())
             else:
-                st.info("Belum ada data untuk bulan yang dipilih.")
+                st.info("Belum ada data untuk bulan ini.")
+        
+        with tab_all:
+            st.metric("💳 Total Modal (All-Time)", f"Rp {df['harga_beli'].sum():,.0f}")
 
-    # ==========================================
-    # HALAMAN 1: DASHBOARD
-    # ==========================================
-    # --- 1. PROSES FILTER BULAN GLOBAL (Pastikan ditaruh di sini) ---
-    df['tgl_jual_dt'] = pd.to_datetime(df['tanggal_jual'], errors='coerce')
-    df['bulan_tahun'] = df['tgl_jual_dt'].dt.to_period('M').astype(str)
-    
-    daftar_bulan = sorted(df['bulan_tahun'].dropna().unique(), reverse=True)
-    daftar_bulan.insert(0, "Semua Bulan")
-
-    st.sidebar.markdown("### 📅 Filter Waktu")
-    pilih_bulan = st.sidebar.selectbox("Pilih Bulan Transaksi:", daftar_bulan)
-
-    # Variabel 'df' sekarang berubah menjadi 'df_filter' untuk dipakai di bawah
-    if pilih_bulan != "Semua Bulan":
-        df_filter = df[df['bulan_tahun'] == pilih_bulan].copy()
-    else:
-        df_filter = df.copy()
+    # ... (Lanjutkan dengan blok Input dan Database lainnya)
 
     # --- 2. PENTING: GANTI 'df' MENJADI 'df_filter' DI BAWAH ---
     # Sekarang, cari semua baris di bawah yang menggunakan 'df' (seperti di Dashboard)
