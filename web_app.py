@@ -215,9 +215,6 @@ if check_password():
     # ==========================================
     # HALAMAN 2: INPUT
     # ==========================================
-    # ==========================================
-    # HALAMAN 2: INPUT
-    # ==========================================
     elif menu_pilihan == "📝 Input Transaksi":
         st.markdown("### 📝 Form Transaksi Baru")
         with st.form("main_form", clear_on_submit=True):
@@ -246,9 +243,7 @@ if check_password():
                 h_jual = st.number_input("Harga Jual (Rp)", min_value=0)
                 keterangan = st.text_area("Keterangan Tambahan")
 
-            st.markdown("<br>", unsafe_allow_html=True)
-            # TAMBAHKAN KEY UNIK DI SINI AGAR TIDAK ERROR
-            if st.form_submit_button("💾 Simpan Data ke Cloud Database", use_container_width=True, key="btn_simpan_input"):
+            if st.form_submit_button("💾 Simpan Data ke Cloud Database", use_container_width=True, key="btn_input_baru"):
                 url = "-"
                 if ss:
                     try:
