@@ -391,38 +391,51 @@ if check_password():
                 eid = st.selectbox("Pilih ID Akun yang ingin Anda edit:", df['id'].tolist(), key="select_edit")
                 row_edit = df[df['id'] == eid].iloc[0]
                 
-                with st.form(f"edit_form_{eid}"):
-                    st.info(f"Silakan perbarui rincian data untuk ID: {eid}")
-                    e_col1, e_col2 = st.columns(2)
+        with st.form(f"edit_form_{eid}"):
+            st.info(f"Silakan perbarui rincian data untuk ID: {eid}")
+            e_col1, e_col2 = st.columns(2)
                     
-                    with e_col1:
-                        st.caption("🛍️ PEMBELIAN (MODAL)")
-                        try: val_tb = datetime.strptime(str(row_edit['tanggal_beli']), "%Y-%m-%d").date()
-                        except: val_tb = datetime.today().date()
-                        etb = st.date_input("Tanggal Beli", value=val_tb)
-                        eg = st.text_input("Game", value=row_edit['nama_game'])
-                        ee = st.text_input("Email", value=row_edit['email_akun'])
-                        epa = st.text_input("Password Akun", value=row_edit.get('password_akun','-')) 
-                        es = st.text_input("Seller", value=row_edit.get('nama_penjual',''))
-                        ews = st.text_input("WA Seller", value=row_edit.get('wa_penjual',''))
+            with e_col1:
+                st.caption("🛍️ PEMBELIAN (MODAL)")
+                try: val_tb = datetime.strptime(str(row_edit['tanggal_beli']), "%Y-%m-%d").date()
+                except: val_tb = datetime.today().date()
+                etb = st.date_input("Tanggal Beli", value=val_tb)
+                eg = st.text_input("Game", value=row_edit['nama_game'])
+                ee = st.text_input("Email", value=row_edit['email_akun'])
+                epa = st.text_input("Password Akun", value=row_edit.get('password_akun','-')) 
+                es = st.text_input("Seller", value=row_edit.get('nama_penjual',''))
+                ews = st.text_input("WA Seller", value=row_edit.get('wa_penjual',''))
                         efs = st.text_input("FB Seller", value=row_edit.get('fb_penjual',''))
                         ehb = st.number_input("Harga Beli", value=float(row_edit['harga_beli']))
                         
-                    with e_col2:
-                        st.caption("💰 PENJUALAN (PROFIT)")
-                        # ...
-                        ehj = st.number_input("💵 Harga Jual", value=float(row_edit['harga_jual']))
+            with e_col2:
+                st.caption("💰 PENJUALAN (PROFIT)")
+                # ...
+                ehj = st.number_input("💵 Harga Jual", value=float(row_edit['harga_jual']))
                         eketerangan = st.text_area("Keterangan", value=row_edit.get('keterangan', '')) # <--- TAMBAHKAN INI
                         
-                    if st.form_submit_button("💾 Update Seluruh Data", use_container_width=True):
+            if st.form_submit_button("💾 Update Seluruh Data", use_container_width=True):
                         upd = {
-                            # ... kolom lainnya, tambahkan:
-                            "keterangan": eketerangan # <--- TAMBAHKAN INI
-                        }
+                            "tanggal_beli": str(etb),
+                            "nama_game": eg,
+                            "email_akun": ee,
+                            "password_akun": epa,
+                            "nama_penjual": es,
+                            "wa_penjual": ews,
+                            "fb_penjual": efs,
+                            "harga_beli": ehb,
+                            "tanggal_jual": str(etj),
+                            "nama_pembeli": eb,
+                            "no_wa": ewb,
+                            "akun_fb": efb,
+                            "harga_jual": ehj, # Pastikan ada koma di sini
+                            "keterangan": eketerangan # Keterangan harus ada di dalam kurung kurawal
+                        } # Kurung kurawal ini menutup dictionary 'upd'
                         
-                    # ... di dalam st.form("main_form", clear_on_submit=True):
-            # ... (semua input sebelumnya)
-            keterangan = st.text_area("Keterangan Tambahan") # Tambahkan ini
+                        # Eksekusi update harus di luar kurung kurawal 'upd'
+                        supabase.table("pendataan_akun").update(upd).eq("id", eid).execute()
+                        st.success("Rincian data berhasil diupdate!")
+                        st.rerun()
 
             st.markdown("<br>", unsafe_allow_html=True)
             # Pastikan tombol ini berada di dalam st.form, bukan di luar!
