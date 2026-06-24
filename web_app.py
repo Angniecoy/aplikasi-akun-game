@@ -386,16 +386,42 @@ if check_password():
                             "keterangan": eketerangan # <--- TAMBAHKAN INI
                         }
                         
-                    st.markdown("<br>", unsafe_allow_html=True)
-                    if st.form_submit_button("💾 Update Seluruh Data", use_container_width=True):
-                        upd = {
-                            "tanggal_beli": str(etb) if etb else "-", "nama_game": eg, "email_akun": ee, "password_akun": epa,
-                            "nama_penjual": es, "wa_penjual": ews, "fb_penjual": efs, "harga_beli": ehb,
-                            "tanggal_jual": str(etj) if etj else "-", "nama_pembeli": eb, "no_wa": ewb, "akun_fb": efb, "harga_jual": ehj
-                        }
-                        supabase.table("pendataan_akun").update(upd).eq("id", eid).execute()
-                        st.success("Rincian data berhasil diupdate!")
-                        st.rerun()
+                    # ... di dalam st.form("main_form", clear_on_submit=True):
+            # ... (semua input sebelumnya)
+            keterangan = st.text_area("Keterangan Tambahan") # Tambahkan ini
+
+            st.markdown("<br>", unsafe_allow_html=True)
+            # Pastikan tombol ini berada di dalam st.form, bukan di luar!
+            if st.form_submit_button("💾 Simpan Data ke Cloud Database", use_container_width=True):
+                url = "-"
+                if ss:
+                    try:
+                        fname = f"{game}_{ss.name}".replace(" ","_")
+                        supabase.storage.from_("screenshots").upload(fname, ss.getvalue())
+                        url = supabase.storage.from_("screenshots").get_public_url(fname)
+                    except: pass
+                
+                # Payload ini harus lengkap dan tertutup kurung kurawal dengan benar
+                payload = {
+                    "tanggal_beli": str(t_beli), 
+                    "nama_game": game, 
+                    "email_akun": email, 
+                    "password_akun": pass_akun, 
+                    "nama_penjual": seller, 
+                    "wa_penjual": wa_seller, 
+                    "fb_penjual": fb_seller,
+                    "harga_beli": float(h_beli), 
+                    "tanggal_jual": str(t_jual) if t_jual else "-",
+                    "nama_pembeli": buyer, 
+                    "no_wa": wa_buyer, 
+                    "akun_fb": fb_buyer, 
+                    "harga_jual": float(h_jual), 
+                    "keterangan": keterangan,  # Pastikan koma ada di sini!
+                    "screenshot": url         # Tidak perlu koma di akhir item terakhir
+                }
+                supabase.table("pendataan_akun").insert(payload).execute()
+                st.success("✅ Transaksi Berhasil Disimpan!")
+                st.rerun()
             
             with tab_hapus:
                 did = st.number_input("Masukkan ID yang akan dihapus:", min_value=0, step=1, value=int(df['id'].iloc[0]))
