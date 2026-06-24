@@ -215,6 +215,9 @@ if check_password():
     # ==========================================
     # HALAMAN 2: INPUT
     # ==========================================
+    # ==========================================
+    # HALAMAN 2: INPUT
+    # ==========================================
     elif menu_pilihan == "📝 Input Transaksi":
         st.markdown("### 📝 Form Transaksi Baru")
         with st.form("main_form", clear_on_submit=True):
@@ -222,7 +225,7 @@ if check_password():
             with col_a:
                 st.subheader("🛒 Pembelian (Dari Seller)")
                 t_beli = st.date_input("Tanggal Beli")
-                game = st.text_input("Nama Game* (Misal: MFF)")
+                game = st.text_input("Nama Game*")
                 col_em, col_pw = st.columns(2)
                 with col_em: email = st.text_input("Email Akun*")
                 with col_pw: pass_akun = st.text_input("Password Akun*")
@@ -241,27 +244,26 @@ if check_password():
                 with col_wab: wa_buyer = st.text_input("WA Pembeli")
                 with col_fbb: fb_buyer = st.text_input("FB Pembeli")
                 h_jual = st.number_input("Harga Jual (Rp)", min_value=0)
-                keterangan = st.text_area("Keterangan") # <--- TAMBAHKAN INI
+                keterangan = st.text_area("Keterangan Tambahan")
 
-            # ... di dalam st.form_submit_button:
-            if st.form_submit_button("💾 Simpan Data ke Cloud Database", use_container_width=True):
-                # ... (logika upload screenshot)
+            st.markdown("<br>", unsafe_allow_html=True)
+            # TAMBAHKAN KEY UNIK DI SINI AGAR TIDAK ERROR
+            if st.form_submit_button("💾 Simpan Data ke Cloud Database", use_container_width=True, key="btn_simpan_input"):
+                url = "-"
+                if ss:
+                    try:
+                        fname = f"{game}_{ss.name}".replace(" ","_")
+                        supabase.storage.from_("screenshots").upload(fname, ss.getvalue())
+                        url = supabase.storage.from_("screenshots").get_public_url(fname)
+                    except: pass
+                
                 payload = {
-                    "tanggal_beli": str(t_beli), 
-                    "nama_game": game, 
-                    "email_akun": email, 
-                    "password_akun": pass_akun, 
-                    "nama_penjual": seller, 
-                    "wa_penjual": wa_seller, 
-                    "fb_penjual": fb_seller,
-                    "harga_beli": float(h_beli), 
-                    "tanggal_jual": str(t_jual) if t_jual else "-",
-                    "nama_pembeli": buyer, 
-                    "no_wa": wa_buyer, 
-                    "akun_fb": fb_buyer, 
-                    "harga_jual": float(h_jual), 
-                    "keterangan": keterangan, # Tambahkan ini, pastikan ada koma sebelumnya
-                    "screenshot": url # Tidak perlu koma di baris terakhir
+                    "tanggal_beli": str(t_beli), "nama_game": game, "email_akun": email, "password_akun": pass_akun, 
+                    "nama_penjual": seller, "wa_penjual": wa_seller, "fb_penjual": fb_seller,
+                    "harga_beli": float(h_beli), "tanggal_jual": str(t_jual) if t_jual else "-",
+                    "nama_pembeli": buyer, "no_wa": wa_buyer, "akun_fb": fb_buyer, "harga_jual": float(h_jual), 
+                    "keterangan": keterangan, 
+                    "screenshot": url
                 }
                 supabase.table("pendataan_akun").insert(payload).execute()
                 st.success("✅ Transaksi Berhasil Disimpan!")
