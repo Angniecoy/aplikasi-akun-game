@@ -400,11 +400,10 @@ if check_password():
                             "nama_pembeli": eb,
                             "no_wa": ewb,
                             "akun_fb": efb,
-                            "harga_jual": ehj, # Pastikan ada koma di sini
-                            "keterangan": eketerangan # Keterangan harus ada di dalam kurung kurawal
-                            "screenshot": url_final # Masukkan URL yang sudah diperbarui
+                            "harga_jual": ehj,
+                            "keterangan": eketerangan,
+                            "screenshot": url_final
                         }
-                        
                         supabase.table("pendataan_akun").update(upd).eq("id", eid).execute()
                         st.success("Rincian dan Screenshot berhasil diupdate!")
                         st.rerun()
