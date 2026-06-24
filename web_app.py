@@ -243,7 +243,10 @@ if check_password():
                 h_jual = st.number_input("Harga Jual (Rp)", min_value=0)
                 keterangan = st.text_area("Keterangan Tambahan")
 
-            if st.form_submit_button("💾 Simpan Data ke Cloud Database", use_container_width=True, key="btn_input_baru"):
+            st.markdown("<br>", unsafe_allow_html=True)
+            
+            # INI ADALAH SATU-SATUNYA TOMBOL SUBMIT
+            if st.form_submit_button("💾 Simpan Data ke Cloud Database", use_container_width=True, key="btn_simpan_input"):
                 url = "-"
                 if ss:
                     try:
@@ -263,40 +266,6 @@ if check_password():
                 supabase.table("pendataan_akun").insert(payload).execute()
                 st.success("✅ Transaksi Berhasil Disimpan!")
                 st.rerun()
-
-            st.markdown("<br>", unsafe_allow_html=True)
-            if st.form_submit_button("💾 Simpan Data ke Cloud Database", use_container_width=True):
-                url = "-"
-                if ss:
-                    try:
-                        fname = f"{game}_{ss.name}".replace(" ","_")
-                        supabase.storage.from_("screenshots").upload(fname, ss.getvalue())
-                        url = supabase.storage.from_("screenshots").get_public_url(fname)
-                    except: pass
-                # PASTIKAN SEMUA KOMA ADA DI AKHIR BARIS KECUALI YANG TERAKHIR
-                payload = {
-                    "tanggal_beli": str(t_beli), 
-                    "nama_game": game, 
-                    "email_akun": email, 
-                    "password_akun": pass_akun, 
-                    "nama_penjual": seller, 
-                    "wa_penjual": wa_seller, 
-                    "fb_penjual": fb_seller,
-                    "harga_beli": float(h_beli), 
-                    "tanggal_jual": str(t_jual) if t_jual else "-",
-                    "nama_pembeli": buyer, 
-                    "no_wa": wa_buyer, 
-                    "akun_fb": fb_buyer, 
-                    "harga_jual": float(h_jual), 
-                    "keterangan": keterangan, 
-                    "screenshot": url
-                }
-                
-                # Pastikan tombol ini tepat di bawah payload dengan indentasi yang sama
-                if st.form_submit_button("💾 Simpan Data ke Cloud Database", use_container_width=True):
-                    supabase.table("pendataan_akun").insert(payload).execute()
-                    st.success("✅ Transaksi Berhasil Disimpan!")
-                    st.rerun()
 
     # ==========================================
     # HALAMAN 3: DATABASE
