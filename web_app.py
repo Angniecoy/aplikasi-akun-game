@@ -394,11 +394,11 @@ if check_password():
                             "akun_fb": efb,
                             "harga_jual": ehj, # Pastikan ada koma di sini
                             "keterangan": eketerangan # Keterangan harus ada di dalam kurung kurawal
-                        } # Kurung kurawal ini menutup dictionary 'upd'
+                            "screenshot": url_final # Masukkan URL yang sudah diperbarui
+                        }
                         
-                        # Eksekusi update harus di luar kurung kurawal 'upd'
                         supabase.table("pendataan_akun").update(upd).eq("id", eid).execute()
-                        st.success("Rincian data berhasil diupdate!")
+                        st.success("Rincian dan Screenshot berhasil diupdate!")
                         st.rerun()
             with tab_hapus:
                 did = st.number_input("Masukkan ID yang akan dihapus:", min_value=0, step=1, value=int(df['id'].iloc[0]))
