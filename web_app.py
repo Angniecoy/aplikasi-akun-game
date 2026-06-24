@@ -297,7 +297,7 @@ if check_password():
                 # ... (kolom lainnya)
                 "harga_jual": st.column_config.NumberColumn("Harga Jual", format="Rp %d"),
                 "keterangan": st.column_config.TextColumn("Keterangan", width="medium"), # <--- Tambahkan ini
-                "screenshot": st.column_config.LinkColumn("Screenshot", display_text="Lihat Gambar"),
+                "screenshot": st.column_config.LinkColumn("Screenshot", display_text="Lihat Gambar", help="Klik untuk membuka gambar di tab baru"),
                 "profit_per_akun": None 
             }
         )
