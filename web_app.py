@@ -397,6 +397,7 @@ if check_password():
                         supabase.storage.from_("screenshots").upload(fname, new_ss.getvalue())
                         url_final = supabase.storage.from_("screenshots").get_public_url(fname)
                     except Exception as e:
+                        # Ganti st.error("Gagal upload gambar") dengan ini:
                         st.error(f"Gagal upload gambar: {e}")
 
                 upd = {
