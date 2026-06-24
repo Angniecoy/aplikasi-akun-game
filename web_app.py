@@ -119,9 +119,11 @@ if check_password():
                 lambda x: "🟢 Tersedia" if x == 0 else "🔴 Terjual"
             )
             urutan_kolom = [
-                "id", "tanggal_beli", "tanggal_jual", "status_stok", "nama_game", "nama_penjual", 
-                "email_akun", "password_akun", "wa_penjual", "fb_penjual", 
-                "harga_beli", "nama_pembeli", "no_wa", "akun_fb", "harga_jual", "screenshot"
+                "id", "tanggal_beli", "tanggal_jual", "status_stok", "nama_game", 
+                "nama_penjual", "email_akun", "password_akun", "wa_penjual", 
+                "fb_penjual", "harga_beli", "nama_pembeli", "no_wa", 
+                "akun_fb", "harga_jual", "keterangan", "screenshot" # <--- Keterangan ditaruh tepat sebelum screenshot
+            ]
             ]
             kolom_tersedia = [kol for kol in urutan_kolom if kol in df.columns]
             df = df[kolom_tersedia]
@@ -288,10 +290,9 @@ if check_password():
             df_display,
             use_container_width=True, hide_index=True, 
             column_config={
-                "id": st.column_config.NumberColumn("ID", format="%d"),
-                "status_stok": st.column_config.TextColumn("Status Stok"),
-                "harga_beli": st.column_config.NumberColumn("Harga Beli", format="Rp %d"),
+                # ... (kolom lainnya)
                 "harga_jual": st.column_config.NumberColumn("Harga Jual", format="Rp %d"),
+                "keterangan": st.column_config.TextColumn("Keterangan", width="medium"), # <--- Tambahkan ini
                 "screenshot": st.column_config.LinkColumn("Screenshot", display_text="Lihat Gambar"),
                 "profit_per_akun": None 
             }
