@@ -122,7 +122,7 @@ if check_password():
                 "id", "tanggal_beli", "tanggal_jual", "status_stok", "nama_game", 
                 "nama_penjual", "email_akun", "password_akun", "wa_penjual", 
                 "fb_penjual", "harga_beli", "nama_pembeli", "no_wa", 
-                "akun_fb", "harga_jual", "keterangan", "screenshot" # <--- Keterangan ditaruh tepat sebelum screenshot
+                "akun_fb", "harga_jual", "keterangan", "screenshot"
             ]
             ]
             kolom_tersedia = [kol for kol in urutan_kolom if kol in df.columns]
