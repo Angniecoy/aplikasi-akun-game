@@ -405,8 +405,8 @@ if check_password():
                 epa = st.text_input("Password Akun", value=row_edit.get('password_akun','-')) 
                 es = st.text_input("Seller", value=row_edit.get('nama_penjual',''))
                 ews = st.text_input("WA Seller", value=row_edit.get('wa_penjual',''))
-                        efs = st.text_input("FB Seller", value=row_edit.get('fb_penjual',''))
-                        ehb = st.number_input("Harga Beli", value=float(row_edit['harga_beli']))
+                efs = st.text_input("FB Seller", value=row_edit.get('fb_penjual',''))
+                ehb = st.number_input("Harga Beli", value=float(row_edit['harga_beli']))
                         
             with e_col2:
                 st.caption("💰 PENJUALAN (PROFIT)")
