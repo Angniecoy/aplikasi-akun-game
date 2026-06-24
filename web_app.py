@@ -372,22 +372,25 @@ if check_password():
                 efs = st.text_input("FB Seller", value=row_edit.get('fb_penjual',''))
                 ehb = st.number_input("Harga Beli", value=float(row_edit['harga_beli']))
                         
-            with e_col2:
-                st.caption("💰 PENJUALAN (PROFIT)")
-                # ...
+            st.caption("💰 PENJUALAN (PROFIT)")
                 ehj = st.number_input("💵 Harga Jual", value=float(row_edit['harga_jual']))
-                eketerangan = st.text_area("Keterangan", value=row_edit.get('keterangan', '')) # <--- TAMBAHKAN INI
+                eketerangan = st.text_area("Keterangan", value=row_edit.get('keterangan', ''))
+                
+                # TAMBAHKAN BARIS INI:
+                new_ss = st.file_uploader("Ganti Screenshot (Opsional)", type=['png', 'jpg', 'jpeg'])
                         
             if st.form_submit_button("💾 Update Seluruh Data", use_container_width=True):
-                        url_final = row_edit['screenshot'] # Default pakai yang lama
-                        if new_ss:
-                            try:
-                                fname = f"{eg}_{new_ss.name}".replace(" ","_")
-                                supabase.storage.from_("screenshots").upload(fname, new_ss.getvalue())
-                                url_final = supabase.storage.from_("screenshots").get_public_url(fname)
-                            except Exception as e:
-                                st.error(f"Gagal upload gambar: {e}")
-                        upd = {
+                # Logika agar screenshot tidak hilang jika tidak di-upload ulang
+                url_final = row_edit['screenshot'] 
+                if new_ss:
+                    try:
+                        fname = f"{eg}_{new_ss.name}".replace(" ","_")
+                        supabase.storage.from_("screenshots").upload(fname, new_ss.getvalue())
+                        url_final = supabase.storage.from_("screenshots").get_public_url(fname)
+                    except Exception as e:
+                        st.error(f"Gagal upload gambar: {e}")
+
+                upd = {
                             "tanggal_beli": str(etb),
                             "nama_game": eg,
                             "email_akun": ee,
@@ -403,10 +406,10 @@ if check_password():
                             "harga_jual": ehj,
                             "keterangan": eketerangan,
                             "screenshot": url_final
-                        }
-                        supabase.table("pendataan_akun").update(upd).eq("id", eid).execute()
-                        st.success("Rincian dan Screenshot berhasil diupdate!")
-                        st.rerun()
+                }
+                supabase.table("pendataan_akun").update(upd).eq("id", eid).execute()
+                st.success("Rincian dan Screenshot berhasil diupdate!")
+                st.rerun()
             with tab_hapus:
                 did = st.number_input("Masukkan ID yang akan dihapus:", min_value=0, step=1, value=int(df['id'].iloc[0]))
                 if st.button("🚨 Hapus Permanen", type="primary"):
