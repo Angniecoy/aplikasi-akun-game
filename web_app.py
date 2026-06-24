@@ -124,7 +124,6 @@ if check_password():
                 "fb_penjual", "harga_beli", "nama_pembeli", "no_wa", 
                 "akun_fb", "harga_jual", "keterangan", "screenshot"
             ]
-            ]
             kolom_tersedia = [kol for kol in urutan_kolom if kol in df.columns]
             df = df[kolom_tersedia]
         else:
