@@ -97,12 +97,12 @@ def check_password():
             st.session_state["password_correct"] = False
 
     if "password_correct" not in st.session_state:
-        st.markdown("<h1 class='glowing-title'>🔒 Vizz Corp.</h1>", unsafe_allow_html=True)
+        st.markdown("<h1 class='glowing-title'>🔒 Copyright Fani</h1>", unsafe_allow_html=True)
         st.info("Silakan masukkan password untuk mengakses MFF Database Manajemen.")
         st.text_input("Password:", type="password", on_change=password_entered, key="password")
         return False
     elif not st.session_state["password_correct"]:
-        st.markdown("<h1 class='glowing-title'>🔒 Vizz Corp.</h1>", unsafe_allow_html=True)
+        st.markdown("<h1 class='glowing-title'>🔒 Copyright Fani</h1>", unsafe_allow_html=True)
         st.text_input("Password:", type="password", on_change=password_entered, key="password")
         st.error("⚠️ Password salah. Silakan coba lagi.")
         return False
@@ -335,7 +335,7 @@ if check_password():
                         f"👤 Buyer: {row_media['nama_pembeli']}\n"
                         f"💰 Nominal Jual: Rp {pd.to_numeric(row_media['harga_jual']):,.0f}\n"
                         f"-----------------------------------\n"
-                        f"Maturnuwun! Percayakan kebutuhan game Anda hanya di Vizz Corp. 🙏🌟"
+                        f"Maturnuwun! Percayakan kebutuhan game Anda hanya di Copyright Fani. 🙏🌟"
                     )
                 st.caption("Klik tombol copy di sudut kanan atas kotak ini untuk menyalin:")
                 st.code(teks_laporan, language="text")
