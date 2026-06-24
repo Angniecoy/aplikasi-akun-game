@@ -393,11 +393,13 @@ if check_password():
                 url_final = row_edit['screenshot'] 
                 if new_ss:
                     try:
-                        fname = f"{eg}_{new_ss.name}".replace(" ","_")
+                        # Menambahkan angka unik (waktu sekarang) ke nama file
+                        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+                        fname = f"{timestamp}_{eg}_{new_ss.name}".replace(" ", "_")
+                
                         supabase.storage.from_("screenshots").upload(fname, new_ss.getvalue())
                         url_final = supabase.storage.from_("screenshots").get_public_url(fname)
                     except Exception as e:
-                        # Ganti st.error("Gagal upload gambar") dengan ini:
                         st.error(f"Gagal upload gambar: {e}")
 
                 upd = {
