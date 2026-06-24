@@ -412,7 +412,7 @@ if check_password():
                 st.caption("💰 PENJUALAN (PROFIT)")
                 # ...
                 ehj = st.number_input("💵 Harga Jual", value=float(row_edit['harga_jual']))
-                        eketerangan = st.text_area("Keterangan", value=row_edit.get('keterangan', '')) # <--- TAMBAHKAN INI
+                eketerangan = st.text_area("Keterangan", value=row_edit.get('keterangan', '')) # <--- TAMBAHKAN INI
                         
             if st.form_submit_button("💾 Update Seluruh Data", use_container_width=True):
                         upd = {
