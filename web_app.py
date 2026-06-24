@@ -374,10 +374,18 @@ if check_password():
                         
             with e_col2:
                 st.caption("💰 PENJUALAN (PROFIT)")
+            
+                # TAMBAHKAN INI AGAR VARIABEL etj TERSEDIA:
+                try: val_tj = datetime.strptime(str(row_edit['tanggal_jual']), "%Y-%m-%d").date()
+                except: val_tj = None
+                etj = st.date_input("Tanggal Jual", value=val_tj)
+                # Tambahkan ini di bawah etj = ...
+                eb = st.text_input("Nama Pembeli", value=row_edit.get('nama_pembeli', ''))
+                ewb = st.text_input("No WA Pembeli", value=row_edit.get('no_wa', ''))
+                efb = st.text_input("Akun FB Pembeli", value=row_edit.get('akun_fb', ''))
+            
                 ehj = st.number_input("💵 Harga Jual", value=float(row_edit['harga_jual']))
                 eketerangan = st.text_area("Keterangan", value=row_edit.get('keterangan', ''))
-                
-                # TAMBAHKAN BARIS INI:
                 new_ss = st.file_uploader("Ganti Screenshot (Opsional)", type=['png', 'jpg', 'jpeg'])
                         
             if st.form_submit_button("💾 Update Seluruh Data", use_container_width=True):
