@@ -372,7 +372,8 @@ if check_password():
                 efs = st.text_input("FB Seller", value=row_edit.get('fb_penjual',''))
                 ehb = st.number_input("Harga Beli", value=float(row_edit['harga_beli']))
                         
-            st.caption("💰 PENJUALAN (PROFIT)")
+            with e_col2:
+                st.caption("💰 PENJUALAN (PROFIT)")
                 ehj = st.number_input("💵 Harga Jual", value=float(row_edit['harga_jual']))
                 eketerangan = st.text_area("Keterangan", value=row_edit.get('keterangan', ''))
                 
