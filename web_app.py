@@ -379,6 +379,14 @@ if check_password():
                 eketerangan = st.text_area("Keterangan", value=row_edit.get('keterangan', '')) # <--- TAMBAHKAN INI
                         
             if st.form_submit_button("💾 Update Seluruh Data", use_container_width=True):
+                        url_final = row_edit['screenshot'] # Default pakai yang lama
+                        if new_ss:
+                            try:
+                                fname = f"{eg}_{new_ss.name}".replace(" ","_")
+                                supabase.storage.from_("screenshots").upload(fname, new_ss.getvalue())
+                                url_final = supabase.storage.from_("screenshots").get_public_url(fname)
+                            except Exception as e:
+                                st.error(f"Gagal upload gambar: {e}")
                         upd = {
                             "tanggal_beli": str(etb),
                             "nama_game": eg,
