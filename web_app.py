@@ -235,13 +235,20 @@ if check_password():
                 
             with col_b:
                 st.subheader("💰 Penjualan (Ke Customer)")
-                st.caption("Abaikan bagian ini jika akun belum laku.")
                 t_jual = st.date_input("Tanggal Jual", value=None)
                 buyer = st.text_input("Nama Pembeli")
                 col_wab, col_fbb = st.columns(2)
                 with col_wab: wa_buyer = st.text_input("WA Pembeli")
                 with col_fbb: fb_buyer = st.text_input("FB Pembeli")
                 h_jual = st.number_input("Harga Jual (Rp)", min_value=0)
+                keterangan = st.text_area("Keterangan") # <--- TAMBAHKAN INI
+
+            # ... di dalam st.form_submit_button:
+            payload = {
+                # ... kolom lainnya, tambahkan:
+                "keterangan": keterangan, # <--- TAMBAHKAN INI
+                "screenshot": url
+            }
 
             st.markdown("<br>", unsafe_allow_html=True)
             if st.form_submit_button("💾 Simpan Data ke Cloud Database", use_container_width=True):
@@ -369,13 +376,15 @@ if check_password():
                         
                     with e_col2:
                         st.caption("💰 PENJUALAN (PROFIT)")
-                        try: val_tj = datetime.strptime(str(row_edit['tanggal_jual']), "%Y-%m-%d").date()
-                        except: val_tj = None
-                        etj = st.date_input("Tanggal Jual", value=val_tj)
-                        eb = st.text_input("Buyer", value=row_edit['nama_pembeli'])
-                        ewb = st.text_input("WA Buyer", value=row_edit['no_wa'])
-                        efb = st.text_input("FB Buyer", value=row_edit.get('akun_fb',''))
+                        # ...
                         ehj = st.number_input("💵 Harga Jual", value=float(row_edit['harga_jual']))
+                        eketerangan = st.text_area("Keterangan", value=row_edit.get('keterangan', '')) # <--- TAMBAHKAN INI
+                        
+                    if st.form_submit_button("💾 Update Seluruh Data", use_container_width=True):
+                        upd = {
+                            # ... kolom lainnya, tambahkan:
+                            "keterangan": eketerangan # <--- TAMBAHKAN INI
+                        }
                         
                     st.markdown("<br>", unsafe_allow_html=True)
                     if st.form_submit_button("💾 Update Seluruh Data", use_container_width=True):
