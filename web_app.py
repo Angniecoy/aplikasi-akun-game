@@ -97,14 +97,14 @@ def check_password():
             st.session_state["password_correct"] = False
 
     if "password_correct" not in st.session_state:
-        st.markdown("<h1 class='glowing-title'>🔒 Copyright Fani</h1>", unsafe_allow_html=True)
-        st.info("Silakan masukkan password untuk mengakses MFF Database Manajemen.")
+        st.markdown("<h1 class='glowing-title'>🔒 © 2026 NiFa. All Rights Reserved.</h1>", unsafe_allow_html=True)
+        st.info("Enter your password.")
         st.text_input("Password:", type="password", on_change=password_entered, key="password")
         return False
     elif not st.session_state["password_correct"]:
-        st.markdown("<h1 class='glowing-title'>🔒 Copyright Fani</h1>", unsafe_allow_html=True)
+        st.markdown("<h1 class='glowing-title'>🔒 © 2026 NiFa. All Rights Reserved.</h1>", unsafe_allow_html=True)
         st.text_input("Password:", type="password", on_change=password_entered, key="password")
-        st.error("⚠️ Password salah. Silakan coba lagi.")
+        st.error("⚠️ Wrong password. Please try again..")
         return False
     return True
 
