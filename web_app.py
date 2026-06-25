@@ -98,8 +98,8 @@ def check_password():
 
     if "password_correct" not in st.session_state:
         st.markdown("<h1 class='glowing-title'>🔒 © 2026 NiFa. All Rights Reserved.</h1>", unsafe_allow_html=True)
-        st.info(".")
-        st.text_input(":", type="password", on_change=password_entered, key="password")
+        st.info("Enter your password.")
+        st.text_input("Enter your password:", type="password", on_change=password_entered, key="password")
         return False
     elif not st.session_state["password_correct"]:
         st.markdown("<h1 class='glowing-title'>🔒 © 2026 NiFa. All Rights Reserved.</h1>", unsafe_allow_html=True)
