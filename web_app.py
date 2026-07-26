@@ -97,14 +97,14 @@ def check_password():
             st.session_state["password_correct"] = False
 
     if "password_correct" not in st.session_state:
-        st.markdown("<h1 class='glowing-title'>🔒 © 2026 NiFa. All Rights Reserved.</h1>", unsafe_allow_html=True)
-        st.info("Tetap lapar, tetap bodoh.")
-        st.text_input("Enter your password:", type="password", on_change=password_entered, key="password")
+        st.markdown("<h1 class='glowing-title'>🔒 Copyright Fani</h1>", unsafe_allow_html=True)
+        st.info("Silakan masukkan password untuk mengakses MFF Database Manajemen.")
+        st.text_input("Password:", type="password", on_change=password_entered, key="password")
         return False
     elif not st.session_state["password_correct"]:
-        st.markdown("<h1 class='glowing-title'>🔒 © 2026 NiFa. All Rights Reserved.</h1>", unsafe_allow_html=True)
-        st.text_input("Enter your password:", type="password", on_change=password_entered, key="password")
-        st.error("⚠️ Wrong password. Please try again..")
+        st.markdown("<h1 class='glowing-title'>🔒 Copyright Fani</h1>", unsafe_allow_html=True)
+        st.text_input("Password:", type="password", on_change=password_entered, key="password")
+        st.error("⚠️ Password salah. Silakan coba lagi.")
         return False
     return True
 
@@ -136,7 +136,7 @@ if check_password():
     st.sidebar.markdown("### ⚙️ Sistem Navigasi")
     menu_pilihan = st.sidebar.radio(
         "Menu Utama:",
-        ["📊 Dashboard Analitik", "📝 Input Transaksi", "🗄️ Database & Manajemen"],
+        ["📊 Dashboard Analitik", "📝 Input Transaksi", "🗄️ Database & Manajemen", "👥 Detail Antrian Buyer"],
         label_visibility="collapsed"
     )
     
@@ -245,12 +245,12 @@ if check_password():
 
             st.markdown("<br>", unsafe_allow_html=True)
             
-            # INI ADALAH SATU-SATUNYA TOMBOL SUBMIT
             if st.form_submit_button("💾 Simpan Data ke Cloud Database", use_container_width=True, key="btn_simpan_input"):
                 url = "-"
                 if ss:
                     try:
-                        fname = f"{game}_{ss.name}".replace(" ","_")
+                        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+                        fname = f"{timestamp}_{game}_{ss.name}".replace(" ","_")
                         supabase.storage.from_("screenshots").upload(fname, ss.getvalue())
                         url = supabase.storage.from_("screenshots").get_public_url(fname)
                     except: pass
@@ -294,9 +294,8 @@ if check_password():
             df_display,
             use_container_width=True, hide_index=True, 
             column_config={
-                # ... (kolom lainnya)
                 "harga_jual": st.column_config.NumberColumn("Harga Jual", format="Rp %d"),
-                "keterangan": st.column_config.TextColumn("Keterangan", width="medium"), # <--- Tambahkan ini
+                "keterangan": st.column_config.TextColumn("Keterangan", width="medium"),
                 "screenshot": st.column_config.LinkColumn("Screenshot", display_text="Lihat Gambar", help="Klik untuk membuka gambar di tab baru"),
                 "profit_per_akun": None 
             }
@@ -355,54 +354,47 @@ if check_password():
                 eid = st.selectbox("Pilih ID Akun yang ingin Anda edit:", df['id'].tolist(), key="select_edit")
                 row_edit = df[df['id'] == eid].iloc[0]
                 
-        with st.form(f"edit_form_{eid}"):
-            st.info(f"Silakan perbarui rincian data untuk ID: {eid}")
-            e_col1, e_col2 = st.columns(2)
-                    
-            with e_col1:
-                st.caption("🛍️ PEMBELIAN (MODAL)")
-                try: val_tb = datetime.strptime(str(row_edit['tanggal_beli']), "%Y-%m-%d").date()
-                except: val_tb = datetime.today().date()
-                etb = st.date_input("Tanggal Beli", value=val_tb)
-                eg = st.text_input("Game", value=row_edit['nama_game'])
-                ee = st.text_input("Email", value=row_edit['email_akun'])
-                epa = st.text_input("Password Akun", value=row_edit.get('password_akun','-')) 
-                es = st.text_input("Seller", value=row_edit.get('nama_penjual',''))
-                ews = st.text_input("WA Seller", value=row_edit.get('wa_penjual',''))
-                efs = st.text_input("FB Seller", value=row_edit.get('fb_penjual',''))
-                ehb = st.number_input("Harga Beli", value=float(row_edit['harga_beli']))
-                        
-            with e_col2:
-                st.caption("💰 PENJUALAN (PROFIT)")
-            
-                # TAMBAHKAN INI AGAR VARIABEL etj TERSEDIA:
-                try: val_tj = datetime.strptime(str(row_edit['tanggal_jual']), "%Y-%m-%d").date()
-                except: val_tj = None
-                etj = st.date_input("Tanggal Jual", value=val_tj)
-                # Tambahkan ini di bawah etj = ...
-                eb = st.text_input("Nama Pembeli", value=row_edit.get('nama_pembeli', ''))
-                ewb = st.text_input("No WA Pembeli", value=row_edit.get('no_wa', ''))
-                efb = st.text_input("Akun FB Pembeli", value=row_edit.get('akun_fb', ''))
-            
-                ehj = st.number_input("💵 Harga Jual", value=float(row_edit['harga_jual']))
-                eketerangan = st.text_area("Keterangan", value=row_edit.get('keterangan', ''))
-                new_ss = st.file_uploader("Ganti Screenshot (Opsional)", type=['png', 'jpg', 'jpeg'])
-                        
-            if st.form_submit_button("💾 Update Seluruh Data", use_container_width=True):
-                # Logika agar screenshot tidak hilang jika tidak di-upload ulang
-                url_final = row_edit['screenshot'] 
-                if new_ss:
-                    try:
-                        # Menambahkan angka unik (waktu sekarang) ke nama file
-                        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-                        fname = f"{timestamp}_{eg}_{new_ss.name}".replace(" ", "_")
-                
-                        supabase.storage.from_("screenshots").upload(fname, new_ss.getvalue())
-                        url_final = supabase.storage.from_("screenshots").get_public_url(fname)
-                    except Exception as e:
-                        st.error(f"Gagal upload gambar: {e}")
+                with st.form(f"edit_form_{eid}"):
+                    st.info(f"Silakan perbarui rincian data untuk ID: {eid}")
+                    e_col1, e_col2 = st.columns(2)
+                            
+                    with e_col1:
+                        st.caption("🛍️ PEMBELIAN (MODAL)")
+                        try: val_tb = datetime.strptime(str(row_edit['tanggal_beli']), "%Y-%m-%d").date()
+                        except: val_tb = datetime.today().date()
+                        etb = st.date_input("Tanggal Beli", value=val_tb)
+                        eg = st.text_input("Game", value=row_edit['nama_game'])
+                        ee = st.text_input("Email", value=row_edit['email_akun'])
+                        epa = st.text_input("Password Akun", value=row_edit.get('password_akun','-')) 
+                        es = st.text_input("Seller", value=row_edit.get('nama_penjual',''))
+                        ews = st.text_input("WA Seller", value=row_edit.get('wa_penjual',''))
+                        efs = st.text_input("FB Seller", value=row_edit.get('fb_penjual',''))
+                        ehb = st.number_input("Harga Beli", value=float(row_edit['harga_beli']))
+                                
+                    with e_col2:
+                        st.caption("💰 PENJUALAN (PROFIT)")
+                        try: val_tj = datetime.strptime(str(row_edit['tanggal_jual']), "%Y-%m-%d").date()
+                        except: val_tj = None
+                        etj = st.date_input("Tanggal Jual", value=val_tj)
+                        eb = st.text_input("Nama Pembeli", value=row_edit.get('nama_pembeli', ''))
+                        ewb = st.text_input("No WA Pembeli", value=row_edit.get('no_wa', ''))
+                        efb = st.text_input("Akun FB Pembeli", value=row_edit.get('akun_fb', ''))
+                        ehj = st.number_input("💵 Harga Jual", value=float(row_edit['harga_jual']))
+                        eketerangan = st.text_area("Keterangan", value=row_edit.get('keterangan', ''))
+                        new_ss = st.file_uploader("Ganti Screenshot (Opsional)", type=['png', 'jpg', 'jpeg'])
+                                
+                    if st.form_submit_button("💾 Update Seluruh Data", use_container_width=True):
+                        url_final = row_edit['screenshot'] 
+                        if new_ss:
+                            try:
+                                timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+                                fname = f"{timestamp}_{eg}_{new_ss.name}".replace(" ", "_")
+                                supabase.storage.from_("screenshots").upload(fname, new_ss.getvalue())
+                                url_final = supabase.storage.from_("screenshots").get_public_url(fname)
+                            except Exception as e:
+                                st.error(f"Gagal upload gambar: {e}")
 
-                upd = {
+                        upd = {
                             "tanggal_beli": str(etb),
                             "nama_game": eg,
                             "email_akun": ee,
@@ -418,13 +410,37 @@ if check_password():
                             "harga_jual": ehj,
                             "keterangan": eketerangan,
                             "screenshot": url_final
-                }
-                supabase.table("pendataan_akun").update(upd).eq("id", eid).execute()
-                st.success("Rincian dan Screenshot berhasil diupdate!")
-                st.rerun()
+                        }
+                        supabase.table("pendataan_akun").update(upd).eq("id", eid).execute()
+                        st.success("Rincian dan Screenshot berhasil diupdate!")
+                        st.rerun()
+
             with tab_hapus:
-                did = st.number_input("Masukkan ID yang akan dihapus:", min_value=0, step=1, value=int(df['id'].iloc[0]))
+                did = st.number_input("Masukkan ID yang akan dihapus:", min_value=0, step=1, value=int(df['id'].iloc[0]) if not df.empty else 0)
                 if st.button("🚨 Hapus Permanen", type="primary"):
                     supabase.table("pendataan_akun").delete().eq("id", did).execute()
                     st.success(f"ID {did} Terhapus!")
                     st.rerun()
+
+    # ==========================================
+    # HALAMAN 4: DETAIL ANTRIAN BUYER
+    # ==========================================
+    elif menu_pilihan == "👥 Detail Antrian Buyer":
+        st.markdown("### 👥 Detail Antrian Buyer")
+        st.info("Kelola dan pantau daftar antrian calon pembeli akun game di sini.")
+        
+        # Contoh placeholder interaktif untuk antrian buyer
+        with st.form("form_antrian_buyer", clear_on_submit=True):
+            col_b1, col_b2 = st.columns(2)
+            with col_b1:
+                nama_calon_buyer = st.text_input("Nama Calon Buyer*")
+                kontak_buyer = st.text_input("No WA / Kontak*")
+            with col_b2:
+                game_diincar = st.text_input("Game / Akun yang Diincar*")
+                catatan_buyer = st.text_area("Catatan / Request Khusus")
+            
+            if st.form_submit_button("➕ Tambah ke Antrian", use_container_width=True):
+                if nama_calon_buyer and game_diincar:
+                    st.success(f"Berhasil menambahkan {nama_calon_buyer} ke dalam antrian buyer!")
+                else:
+                    st.warning("Mohon lengkapi Nama Calon Buyer dan Game yang diincar.")
