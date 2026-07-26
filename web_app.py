@@ -424,18 +424,20 @@ if check_password():
 
     # ==========================================
     # ==========================================
+    # ==========================================
     # HALAMAN 4: DETAIL ANTRIAN BUYER
     # ==========================================
     elif menu_pilihan == "👥 Detail Antrian Buyer":
         st.markdown("### 👥 Detail Antrian Buyer")
         st.info("Kelola, pantau, edit, dan hapus daftar antrian calon pembeli akun game di sini.")
         
-        # 1. Form Input Antrian Baru
+        # 1. Form Input Antrian Baru (Ditambahkan kolom Akun FB)
         with st.form("form_antrian_buyer", clear_on_submit=True):
             col_b1, col_b2 = st.columns(2)
             with col_b1:
                 nama_calon_buyer = st.text_input("Nama Calon Buyer*")
                 kontak_buyer = st.text_input("No WA / Kontak*")
+                input_akun_fb = st.text_input("Akun FB Buyer") # <--- Input Akun FB Ditambahkan Disini
             with col_b2:
                 game_diincar = st.text_input("Game / Akun yang Diincar*")
                 catatan_buyer = st.text_area("Catatan / Request Khusus")
@@ -448,7 +450,8 @@ if check_password():
                             "nama_buyer": nama_calon_buyer,
                             "kontak": kontak_buyer,
                             "game_diincar": game_diincar,
-                            "catatan": catatan_buyer if catatan_buyer else "-"
+                            "catatan": catatan_buyer if catatan_buyer else "-",
+                            "akun_fb": input_akun_fb if input_akun_fb else "-" # <--- Disimpan ke Database
                         }
                         supabase.table("antrian_buyer").insert(payload_buyer).execute()
                         st.success(f"Berhasil menambahkan {nama_calon_buyer} ke dalam antrian buyer!")
