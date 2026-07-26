@@ -429,7 +429,7 @@ if check_password():
         st.markdown("### 👥 Detail Antrian Buyer")
         st.info("Kelola dan pantau daftar antrian calon pembeli akun game di sini.")
         
-        # Contoh placeholder interaktif untuk antrian buyer
+        # Form Input Antrian Baru
         with st.form("form_antrian_buyer", clear_on_submit=True):
             col_b1, col_b2 = st.columns(2)
             with col_b1:
@@ -441,6 +441,32 @@ if check_password():
             
             if st.form_submit_button("➕ Tambah ke Antrian", use_container_width=True):
                 if nama_calon_buyer and game_diincar:
-                    st.success(f"Berhasil menambahkan {nama_calon_buyer} ke dalam antrian buyer!")
+                    try:
+                        payload_buyer = {
+                            "tanggal_input": datetime.today().strftime('%Y-%m-%d'),
+                            "nama_buyer": nama_calon_buyer,
+                            "kontak": kontak_buyer,
+                            "game_diincar": game_diincar,
+                            "catatan": catatan_buyer if catatan_buyer else "-"
+                        }
+                        supabase.table("antrian_buyer").insert(payload_buyer).execute()
+                        st.success(f"Berhasil menambahkan {nama_calon_buyer} ke dalam antrian buyer!")
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"Gagal menyimpan antrian: {e}")
                 else:
                     st.warning("Mohon lengkapi Nama Calon Buyer dan Game yang diincar.")
+
+        st.markdown("---")
+        st.markdown("### 📋 Daftar Tabel Antrian Buyer Aktif")
+        
+        # Ambil dan Tampilkan Data Antrian dari Supabase
+        try:
+            res_buyer = supabase.table("antrian_buyer").select("*").order('id', desc=True).execute()
+            if res_buyer.data:
+                df_buyer = pd.DataFrame(res_buyer.data)
+                st.dataframe(df_buyer, use_container_width=True, hide_index=True)
+            else:
+                st.info("Belum ada data antrian buyer saat ini.")
+        except Exception as e:
+            st.warning("Gagal memuat data antrian dari database.")
