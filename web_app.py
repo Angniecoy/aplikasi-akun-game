@@ -4,9 +4,9 @@ import pandas as pd
 from datetime import datetime
 
 # --- 1. PENGATURAN HALAMAN UTAMA ---
-st.set_page_config(page_title="MFF Database", page_icon="🎮", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="MFF Database Pro", page_icon="🎮", layout="wide", initial_sidebar_state="expanded")
 
-# --- 2. DESAIN UI KUSTOM TINGKAT LANJUT ---
+# --- 2. DESAIN UI KUSTOM TINGKAT LANJUT (RESPONSIF MOBILE & PC) ---
 background_image_url = "https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?q=80&w=2071&auto=format&fit=crop"
 
 st.markdown(
@@ -27,55 +27,51 @@ st.markdown(
     .stApp > header {{ background-color: transparent; }}
     
     .block-container {{
-        background-color: rgba(14, 17, 23, 0.85); 
-        padding: 2.5rem;
+        background-color: rgba(14, 17, 23, 0.90); 
+        padding: 2rem;
         border-radius: 20px;
         box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.6);
-        backdrop-filter: blur(8px);
-        margin-top: 2rem;
-        border: 1px solid rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        margin-top: 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.08);
     }}
 
     [data-testid="stSidebar"] {{
         background: linear-gradient(180deg, #0b0f19 0%, #161b22 100%) !important;
         border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
-        position: relative;
-        overflow: hidden;
-    }}
-    
-    [data-testid="stSidebar"]::before {{
-        content: ""; position: absolute; top: -100px; left: -100px; width: 300px; height: 300px;
-        background: radial-gradient(circle, rgba(0, 201, 255, 0.15) 0%, transparent 70%); border-radius: 50%; z-index: 0; pointer-events: none;
-    }}
-
-    [data-testid="stSidebar"]::after {{
-        content: ""; position: absolute; bottom: -100px; right: -100px; width: 250px; height: 250px;
-        background: radial-gradient(circle, rgba(146, 254, 157, 0.1) 0%, transparent 70%); border-radius: 50%; z-index: 0; pointer-events: none;
-    }}
-
-    .stRadio > div {{ gap: 12px; position: relative; z-index: 1; }}
-    .stRadio > div > label {{
-        background: rgba(255, 255, 255, 0.03) !important; border: 1px solid rgba(255, 255, 255, 0.05) !important;
-        border-radius: 12px !important; padding: 12px 15px !important; transition: all 0.3s ease !important; cursor: pointer;
-    }}
-    .stRadio > div > label:hover {{
-        background: linear-gradient(90deg, rgba(0, 201, 255, 0.1) 0%, transparent 100%) !important;
-        border-color: rgba(0, 201, 255, 0.4) !important; transform: translateX(8px);
     }}
 
     .glowing-title {{
-        font-size: 38px; font-weight: 800; background: linear-gradient(90deg, #00C9FF 0%, #92FE9D 100%);
-        -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0px; text-shadow: 0px 0px 20px rgba(0, 201, 255, 0.3);
+        font-size: clamp(24px, 4vw, 38px);
+        font-weight: 800; 
+        background: linear-gradient(90deg, #00C9FF 0%, #92FE9D 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+        margin-bottom: 0px; 
+        text-shadow: 0px 0px 20px rgba(0, 201, 255, 0.3);
     }}
 
     [data-testid="stMetric"] {{
-        background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
-        border: 1px solid rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 16px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.15); transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.1); 
+        padding: 16px; 
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2); 
+        transition: transform 0.3s ease, border-color 0.3s ease;
     }}
     [data-testid="stMetric"]:hover {{
-        transform: translateY(-7px); border-color: rgba(0, 201, 255, 0.5);
-        box-shadow: 0 10px 30px rgba(0, 201, 255, 0.2); background: linear-gradient(145deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+        transform: translateY(-5px); 
+        border-color: rgba(0, 201, 255, 0.5);
+    }}
+    
+    /* Styling tombol navigasi kartu cepat */
+    .stButton button {{
+        border-radius: 12px !important;
+        font-weight: 600 !important;
+        transition: all 0.3s ease !important;
+    }}
+    .stButton button:hover {{
+        border-color: #00C9FF !important;
+        box-shadow: 0 0 15px rgba(0, 201, 255, 0.3);
     }}
     </style>
     """,
@@ -132,24 +128,52 @@ if check_password():
         st.error(f"Gagal memuat data: {e}")
         st.stop()
 
-    # --- MENU SIDEBAR ---
+    # --- MENU SIDEBAR & QUICK SHORTCUTS ---
     st.sidebar.markdown("### ⚙️ Sistem Navigasi")
+    
+    # Inisialisasi session state untuk navigasi agar tombol kartu berfungsi mulus
+    if "menu_aktif" not in st.session_state:
+        st.session_state["menu_aktif"] = "📊 Dashboard Analitik"
+
     menu_pilihan = st.sidebar.radio(
         "Menu Utama:",
         ["📊 Dashboard Analitik", "📝 Input Transaksi", "🗄️ Database & Manajemen", "👥 Detail Antrian Buyer"],
+        index=["📊 Dashboard Analitik", "📝 Input Transaksi", "🗄️ Database & Manajemen", "👥 Detail Antrian Buyer"].index(st.session_state["menu_aktif"]),
         label_visibility="collapsed"
     )
+    st.session_state["menu_aktif"] = menu_pilihan
     
-    st.sidebar.markdown("<br><br><br>", unsafe_allow_html=True)
+    st.sidebar.markdown("<br><br>", unsafe_allow_html=True)
     st.sidebar.markdown("---")
-    st.sidebar.caption("Sistem MFF Pro v2.5")
+    st.sidebar.caption("Sistem MFF Pro v2.6 (Responsive UI)")
     if st.sidebar.button("🚪 Logout Sistem", use_container_width=True):
         st.session_state.clear()
         st.rerun()
 
     st.markdown("<h1 class='glowing-title'>☁️ MFF Database Manajemen Buy & Sell</h1>", unsafe_allow_html=True)
-    st.caption("Akses Aman • Analitik Real-time • Data Sinkronisasi Cloud")
+    st.caption("Akses Aman • Analitik Real-time • Optimal untuk PC & Android")
     st.markdown("<br>", unsafe_allow_html=True)
+
+    # --- QUICK ACTIONS BAR (Pintasan Tombol Cepat di Atas) ---
+    qa1, qa2, qa3, qa4 = st.columns(4)
+    with qa1:
+        if st.button("📊 Dashboard", use_container_width=True):
+            st.session_state["menu_aktif"] = "📊 Dashboard Analitik"
+            st.rerun()
+    with qa2:
+        if st.button("➕ Input Baru", use_container_width=True):
+            st.session_state["menu_aktif"] = "📝 Input Transaksi"
+            st.rerun()
+    with qa3:
+        if st.button("🗄️ Database", use_container_width=True):
+            st.session_state["menu_aktif"] = "🗄️ Database & Manajemen"
+            st.rerun()
+    with qa4:
+        if st.button("👥 Antrian Buyer", use_container_width=True):
+            st.session_state["menu_aktif"] = "👥 Detail Antrian Buyer"
+            st.rerun()
+            
+    st.markdown("---")
 
     # ==========================================
     # HALAMAN 1: DASHBOARD
@@ -170,7 +194,6 @@ if check_password():
             tanggal_hari_ini = datetime.today().strftime('%Y-%m-%d')
             df_terjual = df[(df['harga_jual'] > 0) & (df['tanggal_jual'] != "-") & (df['tanggal_jual'].notna())].copy()
             
-            # Memastikan format tanggal dikonversi bersih menjadi string YYYY-MM-DD
             df_terjual['tanggal_jual_str'] = pd.to_datetime(df_terjual['tanggal_jual'], errors='coerce').dt.strftime('%Y-%m-%d')
             profit_hari_ini = df_terjual[df_terjual['tanggal_jual_str'] == tanggal_hari_ini]['profit_per_akun'].sum()
 
@@ -187,25 +210,27 @@ if check_password():
                     akun_lama_count = len(akun_lama)
                     
                     if akun_lama_count > 0:
-                        st.warning(f"⚠️ **Perhatian:** Ada **{akun_lama_count} akun** yang sudah mengendap lebih dari 7 hari belum terjual. Direkomendasikan untuk melakukan promosi ulang atau penyesuaian harga di menu Manajemen.")
+                        st.warning(f"⚠️ **Perhatian:** Ada **{akun_lama_count} akun** mengendap >7 hari belum terjual. Cek menu Manajemen.")
                     else:
-                        st.success("✅ Semua stok aktif Anda masih dalam siklus perputaran yang sehat (kurang dari 7 hari). Bagus!")
+                        st.success("✅ Semua stok aktif berada dalam siklus perputaran sehat (<7 hari).")
                 except:
                     pass
 
             st.markdown("<br>", unsafe_allow_html=True)
 
+            # Tata letak responsif metrik untuk HP/PC
             c1, c2, c3 = st.columns(3)
             c1.metric("📦 In Stock", f"{stok} Akun")
-            c2.metric("✅ Total Terjual", f"{terjual} Akun")
-            c3.metric("💳 Total Modal Muter", f"Rp {modal:,.0f}")
+            c2.metric("✅ Terjual", f"{terjual} Akun")
+            c3.metric("💳 Modal Muter", f"Rp {modal:,.0f}")
+            
             st.markdown("<br>", unsafe_allow_html=True)
             c4, c5, c6 = st.columns(3)
-            c4.metric("💎 Nilai Aset Mandek", f"Rp {nilai_stok:,.0f}")
-            c5.metric("💰 Total Profit Bersih", f"Rp {total_profit:,.0f}")
+            c4.metric("💎 Aset Mandek", f"Rp {nilai_stok:,.0f}")
+            c5.metric("💰 Total Profit", f"Rp {total_profit:,.0f}")
             c6.metric("🚀 Profit Hari Ini", f"Rp {profit_hari_ini:,.0f}", delta="Cuan Masuk!" if profit_hari_ini > 0 else None)
 
-            # --- RESUME PROFIT BULANAN (DENGAN FILTER BULAN SPESIFIK) ---
+            # --- RESUME PROFIT BULANAN ---
             st.markdown("---")
             st.markdown("### 📅 Resume Profit Bulanan")
             if not df_terjual.empty:
