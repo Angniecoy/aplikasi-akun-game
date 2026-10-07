@@ -205,20 +205,29 @@ if check_password():
             c5.metric("💰 Total Profit Bersih", f"Rp {total_profit:,.0f}")
             c6.metric("🚀 Profit Hari Ini", f"Rp {profit_hari_ini:,.0f}", delta="Cuan Masuk!" if profit_hari_ini > 0 else None)
 
-            # --- RESUME PROFIT BULANAN ---
+            # --- RESUME PROFIT BULANAN (DENGAN FILTER BULAN SPESIFIK) ---
             st.markdown("---")
             st.markdown("### 📅 Resume Profit Bulanan")
             if not df_terjual.empty:
                 df_terjual['bulan_jual'] = pd.to_datetime(df_terjual['tanggal_jual'], errors='coerce').dt.to_period('M').astype(str)
-                profit_bulanan = df_terjual.groupby('bulan_jual').agg(
-                    jumlah_terjual=('id', 'count'),
-                    total_profit=('profit_per_akun', 'sum')
-                ).reset_index().sort_values('bulan_jual', ascending=False)
                 
-                profit_bulanan['total_profit'] = profit_bulanan['total_profit'].apply(lambda x: f"Rp {x:,.0f}")
-                profit_bulanan.columns = ["Periode Bulan", "Akun Terjual", "Total Profit Bersih"]
+                daftar_bulan = sorted(df_terjual['bulan_jual'].unique(), reverse=True)
+                pilih_bulan = st.selectbox("🎯 Pilih Periode Bulan untuk Dilihat Profitnya:", daftar_bulan)
                 
-                st.dataframe(profit_bulanan, use_container_width=True, hide_index=True)
+                df_bulan_pilihan = df_terjual[df_terjual['bulan_jual'] == pilih_bulan]
+                total_profit_bulan_ini = df_bulan_pilihan['profit_per_akun'].sum()
+                jumlah_terjual_bulan_ini = len(df_bulan_pilihan)
+                
+                mb1, mb2 = st.columns(2)
+                mb1.metric(f"📦 Akun Terjual ({pilih_bulan})", f"{jumlah_terjual_bulan_ini} Akun")
+                mb2.metric(f"💰 Total Profit Bulan {pilih_bulan}", f"Rp {total_profit_bulan_ini:,.0f}")
+                
+                with st.expander(f"🔍 Lihat Rincian Akun Terjual di Bulan {pilih_bulan}"):
+                    tabel_detail_bulan = df_bulan_pilihan[["id", "tanggal_jual", "nama_game", "nama_pembeli", "harga_jual", "profit_per_akun"]].copy()
+                    tabel_detail_bulan['harga_jual'] = tabel_detail_bulan['harga_jual'].apply(lambda x: f"Rp {x:,.0f}")
+                    tabel_detail_bulan['profit_per_akun'] = tabel_detail_bulan['profit_per_akun'].apply(lambda x: f"Rp {x:,.0f}")
+                    tabel_detail_bulan.columns = ["ID", "Tanggal Jual", "Game", "Pembeli", "Harga Jual", "Profit Bersih"]
+                    st.dataframe(tabel_detail_bulan, use_container_width=True, hide_index=True)
             else:
                 st.info("Belum ada data penjualan bulanan untuk dirangkum.")
 
@@ -359,7 +368,7 @@ if check_password():
                         f"👤 Buyer: {row_media['nama_pembeli']}\n"
                         f"💰 Nominal Jual: Rp {pd.to_numeric(row_media['harga_jual']):,.0f}\n"
                         f"-----------------------------------\n"
-                        f"Maturnuwun! Percayakan kebutuhan game Anda hanya di Copyright Fani. 🙏🌟"
+                        f"Maturnuwun! Percayakan kebutuhan game Anda hanya di © 2026 NiFa. All Rights Reserved.. 🙏🌟"
                     )
                 st.caption("Klik tombol copy di sudut kanan atas kotak ini untuk menyalin:")
                 st.code(teks_laporan, language="text")
