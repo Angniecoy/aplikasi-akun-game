@@ -6,72 +6,112 @@ from datetime import datetime
 # --- 1. PENGATURAN HALAMAN UTAMA ---
 st.set_page_config(page_title="MFF Database Pro", page_icon="🎮", layout="wide", initial_sidebar_state="expanded")
 
-# --- 2. DESAIN UI KUSTOM TINGKAT LANJUT (RESPONSIF MOBILE & PC) ---
+# --- 2. DESAIN UI KUSTOM (THEME: CLEAN PROFESSIONAL DASHBOARD) ---
 background_image_url = "https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?q=80&w=2071&auto=format&fit=crop"
 
 st.markdown(
     f"""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
     html, body, [class*="css"] {{
         font-family: 'Poppins', sans-serif;
     }}
 
+    /* Background Utama ala Enterprise Clean */
     .stApp {{
-        background-image: url("{background_image_url}");
+        background-color: #f4f7f6;
+        background-image: linear-gradient(rgba(244, 247, 246, 0.92), rgba(244, 247, 246, 0.92)), url("{background_image_url}");
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
     }}
     .stApp > header {{ background-color: transparent; }}
     
+    /* Container Konten Utama */
     .block-container {{
-        background-color: rgba(14, 17, 23, 0.90); 
-        padding: 2rem;
-        border-radius: 20px;
-        box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.6);
-        backdrop-filter: blur(10px);
-        margin-top: 1.5rem;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-    }}
-
-    [data-testid="stSidebar"] {{
-        background: linear-gradient(180deg, #0b0f19 0%, #161b22 100%) !important;
-        border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
-    }}
-
-    .glowing-title {{
-        font-size: clamp(24px, 4vw, 38px);
-        font-weight: 800; 
-        background: linear-gradient(90deg, #00C9FF 0%, #92FE9D 100%);
-        -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
-        margin-bottom: 0px; 
-        text-shadow: 0px 0px 20px rgba(0, 201, 255, 0.3);
-    }}
-
-    [data-testid="stMetric"] {{
-        background: linear-gradient(145deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
-        border: 1px solid rgba(255, 255, 255, 0.1); 
-        padding: 16px; 
+        background-color: #ffffff; 
+        padding: 2rem 2.5rem;
         border-radius: 16px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.2); 
-        transition: transform 0.3s ease, border-color 0.3s ease;
+        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.05);
+        margin-top: 1.5rem;
+        border: 1px solid #e2e8f0;
+    }}
+
+    /* Sidebar Profesional Bergaya Gelap Elegan */
+    [data-testid="stSidebar"] {{
+        background: #0f172a !important;
+        border-right: 1px solid #1e293b !important;
+    }}
+    [data-testid="stSidebar"] * {{
+        color: #f8fafc !important;
+    }}
+
+    /* Judul Utama */
+    .dashboard-title {{
+        font-size: 28px;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 0px;
+    }}
+
+    /* Kotak Metrik Bersih (Card Style) */
+    [data-testid="stMetric"] {{
+        background: #ffffff;
+        border: 1px solid #e2e8f0; 
+        padding: 16px; 
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        transition: all 0.3s ease;
     }}
     [data-testid="stMetric"]:hover {{
-        transform: translateY(-5px); 
-        border-color: rgba(0, 201, 255, 0.5);
+        border-color: #3b82f6;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.1);
     }}
-    
-    /* Styling tombol navigasi kartu cepat */
+    [data-testid="stMetric"] label {{
+        color: #64748b !important;
+        font-weight: 500 !important;
+    }}
+    [data-testid="stMetric"] [data-testid="stMetricValue"] {{
+        color: #0f172a !important;
+        font-weight: 700 !important;
+    }}
+
+    /* Banner Informatif Biru */
+    .hero-banner {{
+        background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
+        padding: 24px 30px;
+        border-radius: 14px;
+        color: white;
+        margin-top: 20px;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 25px rgba(59, 130, 246, 0.2);
+    }}
+    .hero-banner h3 {{
+        margin: 0;
+        font-weight: 700;
+        font-size: 22px;
+        color: white;
+    }}
+    .hero-banner p {{
+        margin: 8px 0 0 0;
+        color: #e0e7ff;
+        font-size: 14px;
+    }}
+
+    /* Tombol Kustom */
     .stButton button {{
-        border-radius: 12px !important;
+        border-radius: 10px !important;
         font-weight: 600 !important;
-        transition: all 0.3s ease !important;
+        border: 1px solid #cbd5e1 !important;
+        background-color: #ffffff !important;
+        color: #1e293b !important;
+        transition: all 0.2s ease !important;
     }}
     .stButton button:hover {{
-        border-color: #00C9FF !important;
-        box-shadow: 0 0 15px rgba(0, 201, 255, 0.3);
+        border-color: #3b82f6 !important;
+        color: #3b82f6 !important;
+        background-color: #eff6ff !important;
     }}
     </style>
     """,
@@ -93,12 +133,12 @@ def check_password():
             st.session_state["password_correct"] = False
 
     if "password_correct" not in st.session_state:
-        st.markdown("<h1 class='glowing-title'>🔒 © 2026 NiFa. All Rights Reserved.</h1>", unsafe_allow_html=True)
+        st.markdown("<h2 style='color: #0f172a;'>🔒 © 2026 NiFa. All Rights Reserved.</h2>", unsafe_allow_html=True)
         st.info("Tetap lapar, tetap bodoh.")
         st.text_input("Enter your password:", type="password", on_change=password_entered, key="password")
         return False
     elif not st.session_state["password_correct"]:
-        st.markdown("<h1 class='glowing-title'>🔒 © 2026 NiFa. All Rights Reserved.</h1>", unsafe_allow_html=True)
+        st.markdown("<h2 style='color: #0f172a;'>🔒 © 2026 NiFa. All Rights Reserved.</h2>", unsafe_allow_html=True)
         st.text_input("Enter your password:", type="password", on_change=password_entered, key="password")
         st.error("⚠️ Wrong password. Please try again..")
         return False
@@ -128,58 +168,43 @@ if check_password():
         st.error(f"Gagal memuat data: {e}")
         st.stop()
 
-    # --- MENU SIDEBAR & QUICK SHORTCUTS ---
-    st.sidebar.markdown("### ⚙️ Sistem Navigasi")
+    # --- MENU SIDEBAR ---
+    st.sidebar.markdown("### 🏛️ MFF BANK SYSTEM")
+    st.sidebar.caption("Digitalisasi & Manajemen Akun")
+    st.sidebar.markdown("---")
     
-    # Inisialisasi session state untuk navigasi agar tombol kartu berfungsi mulus
     if "menu_aktif" not in st.session_state:
-        st.session_state["menu_aktif"] = "📊 Dashboard Analitik"
+        st.session_state["menu_aktif"] = "📊 Dashboard"
 
     menu_pilihan = st.sidebar.radio(
         "Menu Utama:",
-        ["📊 Dashboard Analitik", "📝 Input Transaksi", "🗄️ Database & Manajemen", "👥 Detail Antrian Buyer"],
-        index=["📊 Dashboard Analitik", "📝 Input Transaksi", "🗄️ Database & Manajemen", "👥 Detail Antrian Buyer"].index(st.session_state["menu_aktif"]),
+        ["📊 Dashboard", "📝 Input Transaksi", "🗄️ Database MFF", "👥 Antrian Buyer"],
+        index=["📊 Dashboard", "📝 Input Transaksi", "🗄️ Database MFF", "👥 Antrian Buyer"].index(st.session_state["menu_aktif"]),
         label_visibility="collapsed"
     )
     st.session_state["menu_aktif"] = menu_pilihan
     
     st.sidebar.markdown("<br><br>", unsafe_allow_html=True)
     st.sidebar.markdown("---")
-    st.sidebar.caption("Sistem MFF Pro v2.6 (Responsive UI)")
+    st.sidebar.caption("Super Admin • MFF Pro v3.0")
     if st.sidebar.button("🚪 Logout Sistem", use_container_width=True):
         st.session_state.clear()
         st.rerun()
 
-    st.markdown("<h1 class='glowing-title'>☁️ MFF Database Manajemen Buy & Sell</h1>", unsafe_allow_html=True)
-    st.caption("Akses Aman • Analitik Real-time • Optimal untuk PC & Android")
+    # Header Atas Ala Dashboard Perusahaan
+    top_col1, top_col2 = st.columns([3, 1])
+    with top_col1:
+        st.markdown("<p class='dashboard-title'>Dashboard Ringkasan</p>", unsafe_allow_html=True)
+    with top_col2:
+        tanggal_sekarang = datetime.today().strftime('%A, %d %B %Y')
+        st.markdown(f"<p style='text-align: right; color: #64748b; font-size: 13px; margin: 0;'>{tanggal_sekarang}<br><b>MFF Management Division</b></p>", unsafe_allow_html=True)
+    
     st.markdown("<br>", unsafe_allow_html=True)
-
-    # --- QUICK ACTIONS BAR (Pintasan Tombol Cepat di Atas) ---
-    qa1, qa2, qa3, qa4 = st.columns(4)
-    with qa1:
-        if st.button("📊 Dashboard", use_container_width=True):
-            st.session_state["menu_aktif"] = "📊 Dashboard Analitik"
-            st.rerun()
-    with qa2:
-        if st.button("➕ Input Baru", use_container_width=True):
-            st.session_state["menu_aktif"] = "📝 Input Transaksi"
-            st.rerun()
-    with qa3:
-        if st.button("🗄️ Database", use_container_width=True):
-            st.session_state["menu_aktif"] = "🗄️ Database & Manajemen"
-            st.rerun()
-    with qa4:
-        if st.button("👥 Antrian Buyer", use_container_width=True):
-            st.session_state["menu_aktif"] = "👥 Detail Antrian Buyer"
-            st.rerun()
-            
-    st.markdown("---")
 
     # ==========================================
     # HALAMAN 1: DASHBOARD
     # ==========================================
-    if menu_pilihan == "📊 Dashboard Analitik":
-        st.markdown("### 📊 Ringkasan Eksekutif")
+    if menu_pilihan == "📊 Dashboard":
         if not df.empty:
             df['harga_beli'] = pd.to_numeric(df['harga_beli'], errors='coerce').fillna(0)
             df['harga_jual'] = pd.to_numeric(df['harga_jual'], errors='coerce').fillna(0)
@@ -193,51 +218,36 @@ if check_password():
 
             tanggal_hari_ini = datetime.today().strftime('%Y-%m-%d')
             df_terjual = df[(df['harga_jual'] > 0) & (df['tanggal_jual'] != "-") & (df['tanggal_jual'].notna())].copy()
-            
             df_terjual['tanggal_jual_str'] = pd.to_datetime(df_terjual['tanggal_jual'], errors='coerce').dt.strftime('%Y-%m-%d')
             profit_hari_ini = df_terjual[df_terjual['tanggal_jual_str'] == tanggal_hari_ini]['profit_per_akun'].sum()
 
-            st.markdown("#### 🚨 Notifikasi & Rekomendasi Tindakan")
-            df_stok_aktif = df[df['harga_jual'] == 0].copy()
-            akun_lama_count = 0
-            
-            if not df_stok_aktif.empty:
-                try:
-                    df_stok_aktif['tgl_beli_dt'] = pd.to_datetime(df_stok_aktif['tanggal_beli'], format='%Y-%m-%d', errors='coerce')
-                    hari_ini_dt = pd.to_datetime(datetime.today().date())
-                    df_stok_aktif['umur_stok'] = (hari_ini_dt - df_stok_aktif['tgl_beli_dt']).dt.days
-                    akun_lama = df_stok_aktif[df_stok_aktif['umur_stok'] > 7]
-                    akun_lama_count = len(akun_lama)
-                    
-                    if akun_lama_count > 0:
-                        st.warning(f"⚠️ **Perhatian:** Ada **{akun_lama_count} akun** mengendap >7 hari belum terjual. Cek menu Manajemen.")
-                    else:
-                        st.success("✅ Semua stok aktif berada dalam siklus perputaran sehat (<7 hari).")
-                except:
-                    pass
+            # Kartu Metrik Ringkasan (4 Kolom Elegan)
+            c1, c2, c3, c4 = st.columns(4)
+            c1.metric("📦 TOTAL STOK", f"{stok} Akun")
+            c2.metric("✅ TERJUAL", f"{terjual} Akun")
+            c3.metric("💳 MODAL MUTER", f"Rp {modal:,.0f}")
+            c4.metric("💰 PROFIT BERSIH", f"Rp {total_profit:,.0f}")
 
-            st.markdown("<br>", unsafe_allow_html=True)
-
-            # Tata letak responsif metrik untuk HP/PC
-            c1, c2, c3 = st.columns(3)
-            c1.metric("📦 In Stock", f"{stok} Akun")
-            c2.metric("✅ Terjual", f"{terjual} Akun")
-            c3.metric("💳 Modal Muter", f"Rp {modal:,.0f}")
-            
-            st.markdown("<br>", unsafe_allow_html=True)
-            c4, c5, c6 = st.columns(3)
-            c4.metric("💎 Aset Mandek", f"Rp {nilai_stok:,.0f}")
-            c5.metric("💰 Total Profit", f"Rp {total_profit:,.0f}")
-            c6.metric("🚀 Profit Hari Ini", f"Rp {profit_hari_ini:,.0f}", delta="Cuan Masuk!" if profit_hari_ini > 0 else None)
+            # Banner Informatif
+            st.markdown(
+                """
+                <div class="hero-banner">
+                    <h3>Bank Data & Manajemen Akun Game MFF</h3>
+                    <p>Pusat digitalisasi inventaris akun, rekapitulasi modal, dan pemantauan profit harian serta bulanan secara terpusat dan real-time.</p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
             # --- RESUME PROFIT BULANAN ---
-            st.markdown("---")
             st.markdown("### 📅 Resume Profit Bulanan")
             if not df_terjual.empty:
                 df_terjual['bulan_jual'] = pd.to_datetime(df_terjual['tanggal_jual'], errors='coerce').dt.to_period('M').astype(str)
-                
                 daftar_bulan = sorted(df_terjual['bulan_jual'].unique(), reverse=True)
-                pilih_bulan = st.selectbox("🎯 Pilih Periode Bulan untuk Dilihat Profitnya:", daftar_bulan)
+                
+                col_sel_bln, col_kosong = st.columns([1, 2])
+                with col_sel_bln:
+                    pilih_bulan = st.selectbox("🎯 Pilih Periode Bulan:", daftar_bulan)
                 
                 df_bulan_pilihan = df_terjual[df_terjual['bulan_jual'] == pilih_bulan]
                 total_profit_bulan_ini = df_bulan_pilihan['profit_per_akun'].sum()
@@ -247,7 +257,7 @@ if check_password():
                 mb1.metric(f"📦 Akun Terjual ({pilih_bulan})", f"{jumlah_terjual_bulan_ini} Akun")
                 mb2.metric(f"💰 Total Profit Bulan {pilih_bulan}", f"Rp {total_profit_bulan_ini:,.0f}")
                 
-                with st.expander(f"🔍 Lihat Rincian Akun Terjual di Bulan {pilih_bulan}"):
+                with st.expander(f"🔍 Lihat Rincian Transaksi Bulan {pilih_bulan}"):
                     tabel_detail_bulan = df_bulan_pilihan[["id", "tanggal_jual", "nama_game", "nama_pembeli", "harga_jual", "profit_per_akun"]].copy()
                     tabel_detail_bulan['harga_jual'] = tabel_detail_bulan['harga_jual'].apply(lambda x: f"Rp {x:,.0f}")
                     tabel_detail_bulan['profit_per_akun'] = tabel_detail_bulan['profit_per_akun'].apply(lambda x: f"Rp {x:,.0f}")
@@ -260,17 +270,17 @@ if check_password():
             st.markdown("### 📈 Grafik Pertumbuhan Profit Harian")
             if not df_terjual.empty:
                 profit_harian = df_terjual.groupby('tanggal_jual_str')['profit_per_akun'].sum()
-                st.area_chart(profit_harian, use_container_width=True, color="#00C9FF")
+                st.area_chart(profit_harian, use_container_width=True, color="#3b82f6")
             else:
                 st.info("Belum ada data penjualan untuk ditampilkan di grafik.")
         else:
             st.info("Sistem belum memiliki data transaksi untuk dianalisis.")
 
     # ==========================================
-    # HALAMAN 2: INPUT
+    # HALAMAN 2: INPUT TRANSAKSI
     # ==========================================
     elif menu_pilihan == "📝 Input Transaksi":
-        st.markdown("### 📝 Form Transaksi Baru")
+        st.markdown("### 📝 Form Input Transaksi Baru")
         with st.form("main_form", clear_on_submit=True):
             col_a, col_b = st.columns(2)
             with col_a:
@@ -299,7 +309,7 @@ if check_password():
 
             st.markdown("<br>", unsafe_allow_html=True)
             
-            if st.form_submit_button("💾 Simpan Data ke Cloud Database", use_container_width=True, key="btn_simpan_input"):
+            if st.form_submit_button("💾 Simpan Data ke Cloud Database", use_container_width=True):
                 url = "-"
                 if ss:
                     try:
@@ -314,18 +324,17 @@ if check_password():
                     "nama_penjual": seller, "wa_penjual": wa_seller, "fb_penjual": fb_seller,
                     "harga_beli": float(h_beli), "tanggal_jual": str(t_jual) if t_jual else "-",
                     "nama_pembeli": buyer, "no_wa": wa_buyer, "akun_fb": fb_buyer, "harga_jual": float(h_jual), 
-                    "keterangan": keterangan, 
-                    "screenshot": url
+                    "keterangan": keterangan, "screenshot": url
                 }
                 supabase.table("pendataan_akun").insert(payload).execute()
                 st.success("✅ Transaksi Berhasil Disimpan!")
                 st.rerun()
 
     # ==========================================
-    # HALAMAN 3: DATABASE
+    # HALAMAN 3: DATABASE MFF
     # ==========================================
-    elif menu_pilihan == "🗄️ Database & Manajemen":
-        st.markdown("### 🗄️ Pusat Database")
+    elif menu_pilihan == "🗄️ Database MFF":
+        st.markdown("### 🗄️ Pusat Database & Manajemen Akun")
         
         col_search, col_filter, col_export = st.columns([2, 1, 1])
         with col_search:
@@ -356,7 +365,6 @@ if check_password():
         )
         
         st.markdown("---")
-        
         st.markdown("### 🖼️ Viewer Media & 📢 Generator Teks")
         if not df.empty:
             pilih_id_media = st.selectbox("🎯 Pilih ID Akun untuk melihat gambar atau membuat teks promosi:", df['id'].tolist(), key="select_media")
@@ -393,13 +401,11 @@ if check_password():
                         f"👤 Buyer: {row_media['nama_pembeli']}\n"
                         f"💰 Nominal Jual: Rp {pd.to_numeric(row_media['harga_jual']):,.0f}\n"
                         f"-----------------------------------\n"
-                        f"Maturnuwun! Percayakan kebutuhan game Anda hanya di © 2026 NiFa. All Rights Reserved.. 🙏🌟"
+                        f"Maturnuwun! Percayakan kebutuhan game Anda hanya di © 2026 NiFa. 🙏🌟"
                     )
-                st.caption("Klik tombol copy di sudut kanan atas kotak ini untuk menyalin:")
                 st.code(teks_laporan, language="text")
 
         st.markdown("---")
-        
         st.markdown("### ⚙️ Kelola Data Spesifik (Edit / Hapus)")
         if not df.empty:
             tab_edit, tab_hapus = st.tabs(["📝 Edit Data", "🗑️ Hapus Data"])
@@ -409,7 +415,7 @@ if check_password():
                 row_edit = df[df['id'] == eid].iloc[0]
                 
                 with st.form(f"edit_form_{eid}"):
-                    st.info(f"Silakan perbarui rincian data untuk ID: {eid}")
+                    st.info(f"Perbarui rincian data untuk ID: {eid}")
                     e_col1, e_col2 = st.columns(2)
                             
                     with e_col1:
@@ -449,24 +455,13 @@ if check_password():
                                 st.error(f"Gagal upload gambar: {e}")
 
                         upd = {
-                            "tanggal_beli": str(etb),
-                            "nama_game": eg,
-                            "email_akun": ee,
-                            "password_akun": epa,
-                            "nama_penjual": es,
-                            "wa_penjual": ews,
-                            "fb_penjual": efs,
-                            "harga_beli": ehb,
-                            "tanggal_jual": str(etj),
-                            "nama_pembeli": eb,
-                            "no_wa": ewb,
-                            "akun_fb": efb,
-                            "harga_jual": ehj,
-                            "keterangan": eketerangan,
-                            "screenshot": url_final
+                            "tanggal_beli": str(etb), "nama_game": eg, "email_akun": ee, "password_akun": epa,
+                            "nama_penjual": es, "wa_penjual": ews, "fb_penjual": efs, "harga_beli": ehb,
+                            "tanggal_jual": str(etj), "nama_pembeli": eb, "no_wa": ewb, "akun_fb": efb,
+                            "harga_jual": ehj, "keterangan": eketerangan, "screenshot": url_final
                         }
                         supabase.table("pendataan_akun").update(upd).eq("id", eid).execute()
-                        st.success("Rincian dan Screenshot berhasil diupdate!")
+                        st.success("Data berhasil diupdate!")
                         st.rerun()
 
             with tab_hapus:
@@ -477,11 +472,11 @@ if check_password():
                     st.rerun()
 
     # ==========================================
-    # HALAMAN 4: DETAIL ANTRIAN BUYER
+    # HALAMAN 4: ANTRIAN BUYER
     # ==========================================
-    elif menu_pilihan == "👥 Detail Antrian Buyer":
+    elif menu_pilihan == "👥 Antrian Buyer":
         st.markdown("### 👥 Detail Antrian Buyer")
-        st.info("Kelola, pantau, edit, dan hapus daftar antrian calon pembeli akun game di sini.")
+        st.info("Kelola, pantau, edit, dan hapus daftar antrian calon pembeli akun game.")
         
         with st.form("form_antrian_buyer", clear_on_submit=True):
             col_b1, col_b2 = st.columns(2)
@@ -498,10 +493,8 @@ if check_password():
                     try:
                         payload_buyer = {
                             "tanggal_input": datetime.today().strftime('%Y-%m-%d'),
-                            "nama_buyer": nama_calon_buyer,
-                            "kontak": kontak_buyer,
-                            "game_diincar": game_diincar,
-                            "catatan": catatan_buyer if catatan_buyer else "-",
+                            "nama_buyer": nama_calon_buyer, "kontak": kontak_buyer,
+                            "game_diincar": game_diincar, "catatan": catatan_buyer if catatan_buyer else "-",
                             "akun_fb": input_akun_fb if input_akun_fb else "-"
                         }
                         supabase.table("antrian_buyer").insert(payload_buyer).execute()
@@ -551,12 +544,8 @@ if check_password():
                         
                         if st.form_submit_button("💾 Update Data Antrian", use_container_width=True):
                             upd_buyer = {
-                                "tanggal_input": str(e_tgl),
-                                "nama_buyer": e_nama,
-                                "kontak": e_kontak,
-                                "game_diincar": e_game,
-                                "catatan": e_catatan,
-                                "akun_fb": e_akunfb
+                                "tanggal_input": str(e_tgl), "nama_buyer": e_nama, "kontak": e_kontak,
+                                "game_diincar": e_game, "catatan": e_catatan, "akun_fb": e_akunfb
                             }
                             supabase.table("antrian_buyer").update(upd_buyer).eq("id", eid_b).execute()
                             st.success("Data antrian berhasil diperbarui!")
